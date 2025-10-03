@@ -1,0 +1,295 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Complete Sprite Test - Ready to Run</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a2332 0%, #0b1320 100%);
+    color: #e7ecf3;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .sprite-display {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0;
+  }
+  
+  .sprite-container {
+    text-align: center;
+  }
+  
+  canvas { 
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 128px;   /* 32*4 */
+    height: 256px;  /* 64*4 */
+    background: #1a1a1a;
+    display: block; 
+    margin: 10px auto;
+    border: 2px solid #3d4f66;
+    border-radius: 8px;
+  }
+  
+  .controls {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .controls button {
+    background: #4a9eff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+  
+  .controls button:hover {
+    background: #3a8eef;
+    transform: translateY(-2px);
+  }
+  
+  .controls button.active {
+    background: #2da44e;
+  }
+  
+  .info {
+    background: #243447;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid #3d4f66;
+  }
+  
+  .status {
+    background: #2da44e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  
+  .error {
+    background: #ff6b6b;
+  }
+</style>
+
+<div class="container">
+  <h1>🎬 Complete Sprite Animation Test</h1>
+  
+  <div class="info">
+    <h3>🔧 Technical Implementation:</h3>
+    <ul>
+      <li><strong>Canvas:</strong> imageSmoothingEnabled = false</li>
+      <li><strong>CSS:</strong> image-rendering: pixelated</li>
+      <li><strong>Frame Math:</strong> Integer coordinates only</li>
+      <li><strong>Timing:</strong> requestAnimationFrame with FPS control</li>
+      <li><strong>Assets:</strong> 32×64 per frame, 4 frames per sheet</li>
+    </ul>
+  </div>
+  
+  <div class="controls">
+    <button onclick="setFPS(4)" id="fps-4">4 FPS (Slow)</button>
+    <button onclick="setFPS(8)" id="fps-8" class="active">8 FPS (Normal)</button>
+    <button onclick="setFPS(12)" id="fps-12">12 FPS (Fast)</button>
+    <button onclick="toggleDirection()">🔄 Flip Direction</button>
+    <button onclick="toggleDebug()">🔍 Debug Grid</button>
+  </div>
+  
+  <div class="sprite-display">
+    <div class="sprite-container">
+      <h3>🚶 Walk Animation</h3>
+      <canvas id="walk-canvas" width="32" height="64"></canvas>
+      <p>anime-walk.png</p>
+    </div>
+    
+    <div class="sprite-container">
+      <h3>🫁 Idle Animation</h3>
+      <canvas id="idle-canvas" width="32" height="64"></canvas>
+      <p>anime-idle.png</p>
+    </div>
+  </div>
+  
+  <div class="status" id="status">
+    <p>🎮 Loading sprite sheets...</p>
+  </div>
+</div>
+
+<script>
+// Global settings
+let currentFPS = 8;
+let showDebug = false;
+let flipped = false;
+
+// Sprite configuration
+const SPRITE_W = 32, SPRITE_H = 64;
+const FRAMES = 4;
+
+// Animation state
+let walkFrame = 0, idleFrame = 0;
+let walkAcc = 0, idleAcc = 0;
+let lastTime = performance.now();
+
+// Canvas setup
+const walkCanvas = document.getElementById('walk-canvas');
+const idleCanvas = document.getElementById('idle-canvas');
+const walkCtx = walkCanvas.getContext('2d', { alpha: true });
+const idleCtx = idleCanvas.getContext('2d', { alpha: true });
+
+// CRITICAL: Disable smoothing
+walkCtx.imageSmoothingEnabled = false;
+idleCtx.imageSmoothingEnabled = false;
+
+// Load sprites
+const walkImg = new Image();
+const idleImg = new Image();
+let walkLoaded = false, idleLoaded = false;
+
+walkImg.onload = () => {
+  walkLoaded = true;
+  updateStatus();
+  console.log(`Walk sprite loaded: ${walkImg.width}×${walkImg.height}`);
+};
+
+idleImg.onload = () => {
+  idleLoaded = true;
+  updateStatus();
+  console.log(`Idle sprite loaded: ${idleImg.width}×${idleImg.height}`);
+};
+
+walkImg.onerror = () => {
+  document.getElementById('status').innerHTML = '❌ Failed to load anime-walk.png';
+  document.getElementById('status').className = 'status error';
+};
+
+idleImg.onerror = () => {
+  document.getElementById('status').innerHTML = '❌ Failed to load anime-idle.png';
+  document.getElementById('status').className = 'status error';
+};
+
+// Load images
+walkImg.src = 'assets/sprites/anime-walk.png';
+idleImg.src = 'assets/sprites/anime-idle.png';
+
+function updateStatus() {
+  if (walkLoaded && idleLoaded) {
+    document.getElementById('status').innerHTML = 
+      '✅ Both sprite sheets loaded successfully!';
+  }
+}
+
+function setFPS(fps) {
+  currentFPS = fps;
+  
+  // Update button states
+  document.querySelectorAll('.controls button').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.getElementById(`fps-${fps}`).classList.add('active');
+}
+
+function toggleDirection() {
+  flipped = !flipped;
+}
+
+function toggleDebug() {
+  showDebug = !showDebug;
+}
+
+function drawDebugGrid(ctx) {
+  if (!showDebug) return;
+  
+  ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+  ctx.lineWidth = 1;
+  
+  // Frame boundaries
+  for (let i = 0; i <= FRAMES; i++) {
+    const x = i * SPRITE_W;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, SPRITE_H);
+    ctx.stroke();
+  }
+  
+  // Center crosshair
+  ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+  ctx.beginPath();
+  ctx.moveTo(SPRITE_W/2, 0);
+  ctx.lineTo(SPRITE_W/2, SPRITE_H);
+  ctx.moveTo(0, SPRITE_H/2);
+  ctx.lineTo(SPRITE_W, SPRITE_H/2);
+  ctx.stroke();
+}
+
+function drawSprite(ctx, img, frame) {
+  if (!img.complete || img.naturalWidth === 0) return;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, SPRITE_W, SPRITE_H);
+  
+  // Draw debug grid first
+  drawDebugGrid(ctx);
+  
+  // Calculate source position with integer math
+  const sourceX = Math.floor(frame * SPRITE_W);
+  
+  // Draw sprite frame
+  ctx.save();
+  if (flipped) {
+    ctx.scale(-1, 1);
+    ctx.translate(-SPRITE_W, 0);
+  }
+  
+  ctx.drawImage(
+    img,
+    sourceX, 0, SPRITE_W, SPRITE_H,
+    0, 0, SPRITE_W, SPRITE_H
+  );
+  ctx.restore();
+}
+
+function animate(now) {
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  
+  const frameTime = 1 / currentFPS;
+  
+  // Update walk animation
+  walkAcc += dt;
+  while (walkAcc >= frameTime) {
+    walkFrame = (walkFrame + 1) % FRAMES;
+    walkAcc -= frameTime;
+  }
+  
+  // Update idle animation
+  idleAcc += dt;
+  while (idleAcc >= frameTime) {
+    idleFrame = (idleFrame + 1) % FRAMES;
+    idleAcc -= frameTime;
+  }
+  
+  // Draw sprites
+  drawSprite(walkCtx, walkImg, walkFrame);
+  drawSprite(idleCtx, idleImg, idleFrame);
+  
+  requestAnimationFrame(animate);
+}
+
+// Start animation loop
+requestAnimationFrame(animate);
+</script>
+

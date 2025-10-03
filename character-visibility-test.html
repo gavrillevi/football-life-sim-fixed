@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Character Visibility Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            padding: 20px; 
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .character-sprite {
+            width: 32px;
+            height: 64px;
+            background: #FFB366;
+            border-radius: 16px 16px 8px 8px;
+            margin: 10px;
+            position: relative;
+            image-rendering: pixelated;
+            border: 2px solid #E69A4A;
+        }
+        .character-sprite::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 6px;
+            width: 20px;
+            height: 20px;
+            background: #FFB366;
+            border-radius: 50%;
+            border: 2px solid #E69A4A;
+        }
+        .character-sprite::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 8px;
+            width: 16px;
+            height: 8px;
+            background: #8B4513;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        /* Animation States - Using non-transform properties to avoid conflicts */
+        .character-sprite.idle {
+            animation: idleBreathing 2s ease-in-out infinite;
+        }
+        
+        .character-sprite.training {
+            animation: trainingPulse 1s ease-in-out infinite;
+        }
+        
+        .character-sprite.sleeping {
+            animation: sleepingGlow 3s ease-in-out infinite;
+        }
+        
+        .character-sprite.eating {
+            animation: eatingScale 0.8s ease-in-out infinite;
+        }
+        
+        .character-sprite.walking {
+            animation: walkingBounce 0.6s ease-in-out infinite;
+        }
+        
+        /* Non-transform animations to avoid conflicts with direction flipping */
+        @keyframes idleBreathing {
+            0%, 100% { 
+                opacity: 1;
+                filter: brightness(1);
+            }
+            50% { 
+                opacity: 0.95;
+                filter: brightness(1.05);
+            }
+        }
+        
+        @keyframes trainingPulse {
+            0%, 100% { 
+                filter: brightness(1) contrast(1);
+                box-shadow: 0 0 0 rgba(74, 158, 255, 0);
+            }
+            50% { 
+                filter: brightness(1.1) contrast(1.1);
+                box-shadow: 0 0 8px rgba(74, 158, 255, 0.5);
+            }
+        }
+        
+        @keyframes sleepingGlow {
+            0%, 100% { 
+                filter: brightness(0.8) hue-rotate(0deg);
+                opacity: 0.9;
+            }
+            50% { 
+                filter: brightness(1) hue-rotate(10deg);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes eatingScale {
+            0%, 100% { 
+                filter: brightness(1) saturate(1);
+            }
+            50% { 
+                filter: brightness(1.1) saturate(1.2);
+            }
+        }
+        
+        @keyframes walkingBounce {
+            0%, 100% { 
+                filter: brightness(1) contrast(1);
+            }
+            25% { 
+                filter: brightness(1.05) contrast(1.05);
+            }
+            50% { 
+                filter: brightness(1) contrast(1);
+            }
+            75% { 
+                filter: brightness(1.05) contrast(1.05);
+            }
+        }
+        
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #2d5a2d; }
+        .error { background: #5a2d2d; }
+        .info { background: #2d4a5a; }
+        button {
+            background: #4a9eff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #3a8eef;
+        }
+        .character-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Character Visibility & Animation Test</h1>
+        
+        <div class="test-section">
+            <h3>🔍 Issue Analysis</h3>
+            <div class="result error">
+                <strong>Problem:</strong> Character only appears when moving<br>
+                <strong>Expected:</strong> Character should always be visible<br>
+                <strong>Animation:</strong> Should have breathing/walking effects
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎬 Animation States Test</h3>
+            <div class="character-grid">
+                <div>
+                    <h4>Idle (Default)</h4>
+                    <div class="character-sprite idle"></div>
+                    <p>Should have breathing animation</p>
+                </div>
+                
+                <div>
+                    <h4>Walking</h4>
+                    <div class="character-sprite walking"></div>
+                    <p>Should have bounce animation</p>
+                </div>
+                
+                <div>
+                    <h4>Training</h4>
+                    <div class="character-sprite training"></div>
+                    <p>Should have pulse animation</p>
+                </div>
+                
+                <div>
+                    <h4>Sleeping</h4>
+                    <div class="character-sprite sleeping"></div>
+                    <p>Should have glow animation</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎮 Game Test</h3>
+            <div class="result info">
+                <strong>Check the actual game:</strong><br>
+                1. Open <a href="http://localhost:5173" target="_blank" style="color: #4a9eff;">http://localhost:5173</a><br>
+                2. Make sure you're on HOME screen<br>
+                3. Character should be visible immediately (not just when moving)<br>
+                4. Check browser console (F12) for debug messages<br>
+                5. Look for: "🎬 Character state" and "🎭 Animation class"
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Debug Steps</h3>
+            <div class="result info">
+                <strong>If character still not visible:</strong><br>
+                1. Check console for "🎬 SpriteSheet loaded" messages<br>
+                2. Verify character position is within view<br>
+                3. Check if CSS animations are working<br>
+                4. Make sure you're on HOME screen (not other locations)
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Expected Console Output</h3>
+            <div class="result success">
+                <strong>Should see in console:</strong><br>
+                🎬 SpriteSheet loaded: /assets/sprites/anime-clean.png<br>
+                📏 Image dimensions: 32×64<br>
+                🎬 Character state: walking=false, training=false, sleeping=false, sprite=/assets/sprites/anime-clean.png<br>
+                🎭 Animation class: idle<br>
+                🎬 Frame: 0, FPS: 1, Playing: true
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🎭 Character visibility test loaded');
+        console.log('🔍 Check if CSS animations are working on the test characters above');
+        
+        // Test if animations are working
+        const characters = document.querySelectorAll('.character-sprite');
+        characters.forEach((char, index) => {
+            const animation = window.getComputedStyle(char).animation;
+            console.log(`Character ${index}: animation = ${animation}`);
+        });
+    </script>
+</body>
+</html>

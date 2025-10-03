@@ -1,0 +1,184 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sprite Sheet System Test</title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: white;
+  }
+  
+  .test-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .test-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: #3a3a3a;
+    border-radius: 8px;
+  }
+  
+  canvas { 
+    image-rendering: pixelated; 
+    background: #1a1a1a;
+    display: block;
+    margin: 10px auto;
+    border: 2px solid #555;
+  }
+  
+  .controls {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .controls button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .controls button:hover {
+    background: #0056b3;
+  }
+  
+  .info {
+    background: #4a4a4a;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-family: monospace;
+    font-size: 12px;
+  }
+</style>
+
+<div class="test-container">
+  <h1>🎬 Sprite Sheet System Test</h1>
+  
+  <div class="test-section">
+    <h3>📐 Frame Dimensions Test</h3>
+    <p>Testing with correct sprite sheet dimensions: 128×64 (4 frames of 32×64 each)</p>
+    
+    <canvas id="test-canvas" width="32" height="64" style="width: 128px; height: 256px;"></canvas>
+    
+    <div class="info" id="canvas-info">
+      Canvas: 32×64 pixels, scaled to 128×256 (4x scale)
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h3>🎮 Animation Controls</h3>
+    <div class="controls">
+      <button onclick="toggleAnimation()">Toggle Animation</button>
+      <button onclick="changeSpeed()">Change Speed</button>
+      <button onclick="resetFrame()">Reset Frame</button>
+    </div>
+    
+    <div class="info" id="animation-info">
+      Animation: Playing | FPS: 8 | Frame: 0/3
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h3>🔧 Technical Details</h3>
+    <ul>
+      <li><strong>Sprite Sheet:</strong> 128×64 pixels (4 frames of 32×64)</li>
+      <li><strong>Frame Size:</strong> 32×64 pixels per frame</li>
+      <li><strong>Rendering:</strong> Canvas with imageSmoothingEnabled = false</li>
+      <li><strong>Scaling:</strong> 4x integer scale for crisp pixels</li>
+      <li><strong>Animation:</strong> requestAnimationFrame with FPS control</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('test-canvas');
+const ctx = canvas.getContext('2d', {alpha: true});
+ctx.imageSmoothingEnabled = false;
+
+const SPRITE_W = 32, SPRITE_H = 64;
+const FRAMES = 4;
+let FPS = 8;
+let isPlaying = true;
+let frame = 0, acc = 0;
+let lastTime = performance.now();
+
+const img = new Image();
+img.onload = () => {
+  console.log('Sprite sheet loaded:', img.width, 'x', img.height);
+  document.getElementById('canvas-info').innerHTML = 
+    `Canvas: 32×64 pixels, scaled to 128×256 (4x scale)<br>
+     Sprite Sheet: ${img.width}×${img.height} pixels<br>
+     Frames: ${FRAMES} (${SPRITE_W}×${SPRITE_H} each)`;
+  
+  if (img.width !== 128 || img.height !== 64) {
+    document.getElementById('canvas-info').innerHTML += 
+      '<br><span style="color: #ff6b6b;">⚠️ WARNING: Expected 128×64, got ' + img.width + '×' + img.height + '</span>';
+  }
+  
+  requestAnimationFrame(loop);
+};
+img.onerror = () => {
+  document.getElementById('canvas-info').innerHTML = 
+    '❌ Error loading sprite sheet. Check file path.';
+};
+img.src = '/assets/sprites/anime-walk.png'; // or anime-clean.png
+
+function loop(now) {
+  if (!isPlaying) {
+    requestAnimationFrame(loop);
+    return;
+  }
+  
+  const dt = (now - lastTime) / 1000;
+  lastTime = now;
+  acc += dt;
+  
+  const spf = 1 / FPS;
+  while (acc >= spf) {
+    frame = (frame + 1) % FRAMES;
+    acc -= spf;
+  }
+  
+  ctx.clearRect(0, 0, SPRITE_W, SPRITE_H);
+  
+  // Draw current frame
+  ctx.drawImage(
+    img,
+    frame * SPRITE_W, 0, SPRITE_W, SPRITE_H, // Source rectangle
+    0, 0, SPRITE_W, SPRITE_H                 // Destination rectangle
+  );
+  
+  // Update info
+  document.getElementById('animation-info').innerHTML = 
+    `Animation: ${isPlaying ? 'Playing' : 'Paused'} | FPS: ${FPS} | Frame: ${frame}/${FRAMES-1}`;
+  
+  requestAnimationFrame(loop);
+}
+
+function toggleAnimation() {
+  isPlaying = !isPlaying;
+  if (isPlaying) {
+    lastTime = performance.now();
+  }
+}
+
+function changeSpeed() {
+  FPS = FPS === 4 ? 8 : FPS === 8 ? 12 : 4;
+}
+
+function resetFrame() {
+  frame = 0;
+  acc = 0;
+}
+</script>

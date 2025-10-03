@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walking Animation Final Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        
+        .character-sprite {
+            width: 32px;
+            height: 64px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        /* Walking animation - bounce effect with direction support */
+        .character-sprite.walking {
+            animation: walkingBounce 0.8s ease-in-out infinite;
+        }
+        
+        .character-sprite.walking[data-direction="left"] {
+            animation: walkingBounceLeft 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes walkingBounce {
+            0% { transform: translateY(0px) scaleX(1); }
+            50% { transform: translateY(-2px) scaleX(1); }
+            100% { transform: translateY(0px) scaleX(1); }
+        }
+        
+        @keyframes walkingBounceLeft {
+            0% { transform: translateY(0px) scaleX(-1); }
+            50% { transform: translateY(-2px) scaleX(-1); }
+            100% { transform: translateY(0px) scaleX(-1); }
+        }
+        
+        /* Idle animation - breathing effect with direction support */
+        .character-sprite.idle {
+            animation: idleBreathing 2s ease-in-out infinite;
+        }
+        
+        .character-sprite.idle[data-direction="left"] {
+            animation: idleBreathingLeft 2s ease-in-out infinite;
+        }
+        
+        @keyframes idleBreathing {
+            0% { transform: scale(1) scaleX(1); }
+            50% { transform: scale(1.02) scaleX(1); }
+            100% { transform: scale(1) scaleX(1); }
+        }
+        
+        @keyframes idleBreathingLeft {
+            0% { transform: scale(1) scaleX(-1); }
+            50% { transform: scale(1.02) scaleX(-1); }
+            100% { transform: scale(1) scaleX(-1); }
+        }
+        
+        .animation-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .animation-card {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            background: #fafafa;
+            text-align: center;
+        }
+        
+        .animation-card h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .animation-controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .animation-controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .animation-controls button:hover {
+            background: #0056b3;
+        }
+        
+        .animation-controls button.active {
+            background: #28a745;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚶‍♂️ Walking Animation Final Test</h1>
+        
+        <div class="test-info">
+            <h3>🔧 Final Animation Fix:</h3>
+            <ul>
+                <li><strong>Method:</strong> Div with background-image and data-direction</li>
+                <li><strong>Animation:</strong> CSS keyframes with combined transforms</li>
+                <li><strong>Direction:</strong> Separate animations for left/right</li>
+            </ul>
+        </div>
+        
+        <div class="status" id="status">
+            <p>🔄 Testing final animation system...</p>
+        </div>
+        
+        <h3>🎬 Animation Demo</h3>
+        <div class="animation-demo">
+            <div class="animation-card">
+                <h3>🚶‍♂️ Walking Right</h3>
+                <div class="character-sprite walking" data-direction="right" id="demo-character" style="background-image: url('/assets/sprites/anime-clean.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        WALKING RIGHT
+                    </div>
+                </div>
+                <p><strong>Animation:</strong> Bounce + facing right</p>
+                <p><strong>Speed:</strong> 0.8 seconds per cycle</p>
+            </div>
+            
+            <div class="animation-card">
+                <h3>🚶‍♂️ Walking Left</h3>
+                <div class="character-sprite walking" data-direction="left" style="background-image: url('/assets/sprites/anime-clean.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        WALKING LEFT
+                    </div>
+                </div>
+                <p><strong>Animation:</strong> Bounce + facing left</p>
+                <p><strong>Speed:</strong> 0.8 seconds per cycle</p>
+            </div>
+        </div>
+        
+        <div class="animation-demo">
+            <div class="animation-card">
+                <h3>😴 Idle Right</h3>
+                <div class="character-sprite idle" data-direction="right" style="background-image: url('/assets/sprites/anime-clean.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        IDLE RIGHT
+                    </div>
+                </div>
+                <p><strong>Animation:</strong> Breathing + facing right</p>
+                <p><strong>Speed:</strong> 2 seconds per cycle</p>
+            </div>
+            
+            <div class="animation-card">
+                <h3>😴 Idle Left</h3>
+                <div class="character-sprite idle" data-direction="left" style="background-image: url('/assets/sprites/anime-clean.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        IDLE LEFT
+                    </div>
+                </div>
+                <p><strong>Animation:</strong> Breathing + facing left</p>
+                <p><strong>Speed:</strong> 2 seconds per cycle</p>
+            </div>
+        </div>
+        
+        <h3>🎮 Animation Controls</h3>
+        <div class="animation-controls">
+            <button onclick="setState('walking', 'right')" id="walk-right-btn" class="active">Walk Right</button>
+            <button onclick="setState('walking', 'left')" id="walk-left-btn">Walk Left</button>
+            <button onclick="setState('idle', 'right')" id="idle-right-btn">Idle Right</button>
+            <button onclick="setState('idle', 'left')" id="idle-left-btn">Idle Left</button>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            <strong>Debug Information:</strong><br>
+            Testing animation system...
+        </div>
+        
+        <div class="test-info">
+            <h3>🎮 Game Test:</h3>
+            <p><strong>Main Game:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+            <p><strong>Expected:</strong> Character should bounce when walking, breathe when idle</p>
+            <p><strong>Direction:</strong> Character should face movement direction</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>🎯 What to Check in Game:</h3>
+            <ul>
+                <li><strong>Walking Animation:</strong> Character should bounce up and down when moving</li>
+                <li><strong>Idle Animation:</strong> Character should have subtle breathing effect when standing</li>
+                <li><strong>Direction Flipping:</strong> Character should face the direction of movement</li>
+                <li><strong>Smooth Animation:</strong> No stuttering or conflicts</li>
+                <li><strong>Proper Timing:</strong> 0.8s for walking, 2s for idle</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Test character asset
+        const img = new Image();
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug-info');
+        
+        img.onload = function() {
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = `
+                <p>✅ <strong>Final animation system ready!</strong></p>
+                <p>📐 <strong>Character:</strong> ${img.naturalWidth}x${img.naturalHeight} pixels</p>
+                <p>🎬 <strong>Animation:</strong> CSS keyframes with data-direction</p>
+                <p>🎮 <strong>Game:</strong> Should work the same way</p>
+            `;
+            
+            debugDiv.innerHTML = `
+                <strong>Debug Information:</strong><br>
+                ✅ Character asset loaded<br>
+                ✅ CSS animations configured<br>
+                ✅ Direction support with data-direction<br>
+                ✅ Combined transforms in keyframes<br>
+                ✅ Walking animation should work
+            `;
+        };
+        
+        img.onerror = function() {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `<p>❌ <strong>Error!</strong> Character asset failed to load</p>`;
+        };
+        
+        img.src = '/assets/sprites/anime-clean.png';
+        
+        function setState(animation, direction) {
+            const character = document.getElementById('demo-character');
+            
+            // Update character
+            character.className = `character-sprite ${animation}`;
+            character.setAttribute('data-direction', direction);
+            
+            // Update button states
+            document.querySelectorAll('.animation-controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${animation}-${direction}-btn`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

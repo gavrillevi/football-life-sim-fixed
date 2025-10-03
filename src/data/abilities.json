@@ -1,0 +1,37 @@
+[
+  {
+    "id": "quick_dribble",
+    "label": "Quick Dribble",
+    "costEnergy": 8,
+    "primaryCheck": [
+      "pace",
+      "technique"
+    ],
+    "baseSuccess": 55,
+    "hiddenMods": {
+      "confidence": 2
+    }
+  },
+  {
+    "id": "cross_basic",
+    "label": "Cross",
+    "costEnergy": 6,
+    "primaryCheck": [
+      "vision",
+      "technique"
+    ],
+    "baseSuccess": 50
+  },
+  {
+    "id": "long_shot",
+    "label": "Long Shot",
+    "costEnergy": 10,
+    "primaryCheck": [
+      "technique"
+    ],
+    "baseSuccess": 45,
+    "hiddenMods": {
+      "confidence": 3
+    }
+  }
+]

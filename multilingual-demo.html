@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Life Sim - Multilingual Demo</title>
+    <style>
+        :root {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary-bg: #1a2332;
+            --secondary-bg: #0f1a31;
+            --card-bg: #243447;
+            --accent-blue: #4a9eff;
+            --accent-green: #2da44e;
+            --accent-orange: #ff8c42;
+            --text-primary: #e7ecf3;
+            --text-secondary: #98a2b3;
+            --border-color: #3d4f66;
+        }
+
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, #0b1320 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .language-switcher {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .language-switcher button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .language-switcher button:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .language-switcher button.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .demo-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .demo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .demo-item h3 {
+            margin-top: 0;
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .translation-pair {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px;
+            background: var(--secondary-bg);
+            border-radius: 6px;
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .translation-key {
+            font-family: 'Courier New', monospace;
+            color: var(--accent-orange);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .translation-text {
+            flex: 1;
+            margin-left: 12px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #2d4a2d 0%, #1a331a 100%);
+            border: 2px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .highlight-box h4 {
+            color: var(--accent-green);
+            margin-top: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stat-item {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-item strong {
+            color: var(--accent-blue);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .instruction-box {
+            background: linear-gradient(135deg, #2d4a4a 0%, #1a3333 100%);
+            border: 2px solid #4a9eff;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .instruction-box h4 {
+            color: var(--accent-blue);
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 style="text-align: center; margin-bottom: 0;">
+                <span class="feature-icon">🌍</span>
+                Football Life Sim - Multilingual Support
+            </h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 8px;">
+                Now available in English and Russian with automatic language detection and switching!
+            </p>
+        </div>
+
+        <!-- Language Switcher Demo -->
+        <div class="language-switcher">
+            <span style="font-weight: 600;">🌐 Language / Язык:</span>
+            <button id="enBtn" class="active" onclick="switchLang('en')">English</button>
+            <button id="ruBtn" onclick="switchLang('ru')">Русский</button>
+        </div>
+
+        <!-- Game Header Demo -->
+        <div class="card">
+            <h3 id="header-title">Football Life Sim</h3>
+            <div id="header-info">🇷🇴 Location: Home · Time: 08:30 · Money: $200</div>
+        </div>
+
+        <!-- Translations Demo -->
+        <div class="demo-section">
+            <div class="demo-item">
+                <h3 id="section-stats">📊 Player Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <strong id="stat-pace">Pace</strong>
+                        <span>75%</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="stat-technique">Technique</strong>
+                        <span>68%</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="stat-energy">Energy</strong>
+                        <span>85%</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="stat-hunger">Hunger</strong>
+                        <span>70%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-item">
+                <h3 id="section-training">🏃 Training Activities</h3>
+                <div class="controls" style="margin-bottom: 12px;">
+                    <button style="margin: 4px; padding: 6px 12px; background: var(--accent-blue); border: none; border-radius: 4px; color: white;">Light</button>
+                    <button style="margin: 4px; padding: 6px 12px; background: var(--accent-green); border: none; border-radius: 4px; color: white;">Normal</button>
+                    <button style="margin: 4px; padding: 6px 12px; background: var(--accent-orange); border: none; border-radius: 4px; color: white;">Intense</button>
+                </div>
+                <div id="training-activities">
+                    <div style="margin: 8px 0;">⚽ Jogging</div>
+                    <div style="margin: 8px 0;">⚽ Juggling</div>
+                    <div style="margin: 8px 0;">💪 Weight Training</div>
+                    <div style="margin: 8px 0;">🎯 Shooting Practice</div>
+                </div>
+            </div>
+
+            <div class="demo-item">
+                <h3 id="section-home">🏠 Home Activities</h3>
+                <div id="home-activities">
+                    <div style="margin: 8px 0;">🍽️ Eat Meal (3)</div>
+                    <div style="margin: 8px 0;">🥤 Have Drink (5)</div>
+                    <div style="margin: 8px 0;">😴 Sleep</div>
+                    <div style="margin: 8px 0;">📺 Watch Game Footage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Translation Table -->
+        <div class="card">
+            <h3>📝 Translation Examples</h3>
+            <div id="translation-examples">
+                <!-- Translations will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Technical Features -->
+        <div class="highlight-box">
+            <h4>🚀 Technical Features</h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <strong>Auto Save</strong>
+                    <span>Language preference saved</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Fallback System</strong>
+                    <span>Missing translations handled</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Real-time Switch</strong>
+                    <span>Instant language change</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Context Aware</strong>
+                    <span>React hooks integration</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instruction-box">
+            <h4>⚡ How to Test the Multilingual Game</h4>
+            <ol style="line-height: 1.6;">
+                <li><strong>Run the game:</strong> <code>npm run dev</code></li>
+                <li><strong>Find the language switcher:</strong> Look for the 🌐 EN/RU buttons in the top-right of the header</li>
+                <li><strong>Click language buttons:</strong> Switch between English and Russian instantly</li>
+                <li><strong>See translations:</strong> All UI text changes immediately</li>
+                <li><strong>Persistent settings:</strong> Your language choice is saved and restored on reload</li>
+            </ol>
+        </div>
+
+        <!-- Supported Languages -->
+        <div class="card">
+            <h3>🌍 Supported Languages</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div style="background: var(--secondary-bg); padding: 16px; border-radius: 8px; text-align: center;">
+                    <h4 style="color: var(--accent-blue); margin-top: 0;">English</h4>
+                    <p style="margin: 0; color: var(--text-secondary);">Complete translations for all game elements</p>
+                </div>
+                <div style="background: var(--secondary-bg); padding: 16px; border-radius: 8px; text-align: center;">
+                    <h4 style="color: var(--accent-blue); margin-top: 0;">Русский</h4>
+                    <p style="margin: 0; color: var(--text-secondary);">Полные переводы для всех элементов игры</p>
+                </div>
+            </div>
+            <div style="margin-top: 16px; text-align: center;">
+                <strong style="color: var(--accent-orange);">More languages can be easily added!</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Translations Data -->
+    <script>
+        const translations = {
+            en: {
+                title: "Football Life Sim",
+                location: "Location: Home",
+                time: "Time: 08:30",
+                money: "Money: $200",
+                stats: "Player Statistics",
+                pace: "Pace",
+                technique: "Technique", 
+                energy: "Energy",
+                hunger: "Hunger",
+                training: "Training Activities",
+                intensity: ["Light", "Normal", "Intense"],
+                activities: ["Jogging", "Juggling", "Weight Training", "Shooting Practice"],
+                home: "Home Activities",
+                homeActivities: ["Eat Meal (3)", "Have Drink (5)", "Sleep", "Watch Game Footage"],
+                // Common translations
+                jogging: "Jogging",
+                juggling: "Juggling", 
+                weights: "Weight Training",
+                shooting: "Shooting Practice",
+                eatMeal: "Eat Meal (3)",
+                drink: "Have Drink (5)",
+                sleep: "Sleep",
+                footage: "Watch Game Footage",
+                // Technical features
+                autoSave: "Language preference saved",
+                fallback: "Missing translations handled",
+                realTime: "Instant language change", 
+                contextAware: "React hooks integration"
+            },
+            ru: {
+                title: "Симулятор Футбольной Жизни",
+                location: "Местоположение: Дом",
+                time: "Время: 08:30", 
+                money: "Деньги: $200",
+                stats: "Статистика Игрока",
+                pace: "Скорость",
+                technique: "Техника",
+                energy: "Энергия", 
+                hunger: "Голод",
+                training: "Тренировочные Активности",
+                intensity: ["Легкая", "Обычная", "Интенсивная"],
+                activities: ["Пробежка", "Жонглирование", "Работа с Весами", "Тренировка Ударов"],
+                home: "Домашние Активности", 
+                homeActivities: ["Поесть (3)", "Попить (5)", "Спать", "Просмотр Матчей"],
+                // Common translations
+                jogging: "Пробежка",
+                juggling: "Жонглирование",
+                weights: "Работа с Весами", 
+                shooting: "Тренировка Ударов",
+                eatMeal: "Поесть (3)",
+                drink: "Попить (5)",
+                sleep: "Спать",
+                footage: "Просмотр Матчей",
+                // Technical features
+                autoSave: "Настройки языка сохранены",
+                fallback: "Обработка отсутствующих переводов",
+                realTime: "Мгновенная смена языка",
+                contextAware: "Интеграция с React hooks"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function switchLang(lang) {
+            currentLang = lang;
+            document.getElementById('enBtn').classList.toggle('active', lang === 'en');
+            document.getElementById('ruBtn').classList.toggle('active', lang === 'ru');
+            updateTranslations();
+        }
+
+        function updateTranslations() {
+            const t = translations[currentLang];
+            
+            // Update main elements
+            document.getElementById('header-title').textContent = t.title;
+            document.getElementById('header-info').textContent = `${t.location} · ${t.time} · ${t.money}`;
+            
+            // Update sections
+            document.getElementById('section-stats').innerHTML = `<span class="feature-icon">📊</span>${t.stats}`;
+            document.getElementById('section-training').innerHTML = `<span class="feature-icon">🏃</span>${t.training}`;
+            document.getElementById('section-home').innerHTML = `<span class="feature-icon">🏠</span>${t.home}`;
+            
+            // Update stat names
+            document.getElementById('stat-pace').textContent = t.pace;
+            document.getElementById('stat-technique').textContent = t.technique;
+            document.getElementById('stat-energy').textContent = t.energy;
+            document.getElementById('stat-hunger').textContent = t.hunger;
+            
+            // Update activities
+            const activities = document.getElementById('training-activities');
+            activities.innerHTML = t.activities.map(activity => 
+                `<div style="margin: 8px 0;">⚽ ${activity}</div>`
+            ).join('');
+            
+            const homeActivities = document.getElementById('home-activities');
+            homeActivities.innerHTML = t.homeActivities.map(activity => 
+                `<div style="margin: 8px 0;">${activity.startsWith('Поесть') ? '🍽️' : activity.startsWith('Попить') ? '🥤' : activity.startsWith('Спать') ? '😴' : '📺'} ${activity}</div>`
+            ).join('');
+            
+            // Update translation examples
+            updateTranslationExamples(t);
+        }
+
+        function updateTranslationExamples(t) {
+            const examples = document.getElementById('translation-examples');
+            const exampleKeys = ['jogging', 'juggling', 'weights', 'shooting', 'eatMeal', 'drink', 'sleep', 'footage'];
+            
+            examples.innerHTML = exampleKeys.map(key => `
+                <div class="translation-pair">
+                    <span class="translation-key">${key}</span>
+                    <span class="translation-text">${t[key]}</span>
+                </div>
+            `).join('');
+        }
+
+        // Initialize
+        updateTranslations();
+    </script>
+</body>
+</html>

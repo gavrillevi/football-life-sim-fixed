@@ -1,0 +1,38 @@
+[
+  {
+    "id": "agent_shady_1",
+    "title": "Shady Agent",
+    "text": "\"Sign with me now. Big money, quick transfer.\"",
+    "choices": [
+      {
+        "id": "sign",
+        "label": "Sign the contract",
+        "effects": {
+          "hidden": {
+            "coachTrust": -10,
+            "reputation": 5
+          }
+        }
+      },
+      {
+        "id": "refuse",
+        "label": "Refuse politely",
+        "effects": {
+          "hidden": {
+            "discipline": 5,
+            "coachTrust": 5
+          }
+        }
+      },
+      {
+        "id": "stall",
+        "label": "Ask for time",
+        "effects": {
+          "hidden": {
+            "confidence": 2
+          }
+        }
+      }
+    ]
+  }
+]

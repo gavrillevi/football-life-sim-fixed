@@ -1,0 +1,6 @@
+This folder is ready for your generated background!
+
+Put this file here:
+- home-interior.png (800x600 pixels)
+
+The game will automatically use it as the home background once you add it.

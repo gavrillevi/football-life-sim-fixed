@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Visibility Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        
+        .character-test {
+            width: 32px;
+            height: 64px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .game-preview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .game-preview h4 {
+            margin: 10px 0;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>👁️ Character Visibility Test</h1>
+        
+        <div class="test-info">
+            <h3>🔍 Debugging Character Display Issue:</h3>
+            <ul>
+                <li><strong>Problem:</strong> Character not visible in game</li>
+                <li><strong>Possible Causes:</strong> Sprite sheet animation, positioning, or loading issues</li>
+                <li><strong>Solution:</strong> Reverted to simpler Sprite component approach</li>
+            </ul>
+        </div>
+        
+        <div class="status" id="status">
+            <p>🔄 Testing character visibility...</p>
+        </div>
+        
+        <h3>🎮 Character Tests</h3>
+        
+        <div class="game-preview">
+            <h4>Static Character (anime-clean.png)</h4>
+            <img src="/assets/sprites/anime-clean.png" alt="Static Character" width="32" height="64" style="border: 2px solid #ddd; border-radius: 8px;">
+            <p><strong>Expected:</strong> Should be visible</p>
+        </div>
+        
+        <div class="game-preview">
+            <h4>Walking Animation (anime-walk.png)</h4>
+            <img src="/assets/sprites/anime-walk.png" alt="Walking Animation" width="128" height="64" style="border: 2px solid #ddd; border-radius: 8px;">
+            <p><strong>Expected:</strong> Should show 4-frame sprite sheet</p>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            <strong>Debug Information:</strong><br>
+            Loading character assets...
+        </div>
+        
+        <div class="test-info">
+            <h3>🎮 Game Test:</h3>
+            <p><strong>Main Game:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+            <p><strong>Expected:</strong> Character should now be visible</p>
+            <p><strong>Animation:</strong> Simple pulse effect when walking</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>🔧 Changes Made:</h3>
+            <ul>
+                <li><strong>Reverted to Sprite component</strong> - More reliable than background images</li>
+                <li><strong>Simplified animations</strong> - Using scale transforms instead of sprite sheets</li>
+                <li><strong>Fixed positioning</strong> - Character should be visible at starting position</li>
+                <li><strong>Added fallback</strong> - If walking animation fails, uses static character</li>
+            </ul>
+        </div>
+        
+        <div class="test-info">
+            <h3>🎯 What to Check:</h3>
+            <ul>
+                <li><strong>Character Visibility:</strong> Character should be visible in game</li>
+                <li><strong>Starting Position:</strong> Character should appear at center of house</li>
+                <li><strong>Movement:</strong> Character should move when clicked</li>
+                <li><strong>Animation:</strong> Simple pulse effect when walking</li>
+                <li><strong>Direction:</strong> Character should face movement direction</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Test character assets
+        const staticImg = new Image();
+        const walkImg = new Image();
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug-info');
+        
+        let staticLoaded = false;
+        let walkLoaded = false;
+        
+        function updateStatus() {
+            if (staticLoaded && walkLoaded) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = `
+                    <p>✅ <strong>All character assets loaded successfully!</strong></p>
+                    <p>📐 <strong>Static:</strong> ${staticImg.naturalWidth}x${staticImg.naturalHeight} pixels</p>
+                    <p>📐 <strong>Walking:</strong> ${walkImg.naturalWidth}x${walkImg.naturalHeight} pixels</p>
+                    <p>🎮 <strong>Game:</strong> Character should now be visible</p>
+                `;
+                
+                debugDiv.innerHTML = `
+                    <strong>Debug Information:</strong><br>
+                    ✅ Static character: ${staticImg.naturalWidth}x${staticImg.naturalHeight}<br>
+                    ✅ Walking animation: ${walkImg.naturalWidth}x${walkImg.naturalHeight}<br>
+                    ✅ Both assets loaded successfully<br>
+                    ✅ Character should be visible in game
+                `;
+            } else if (staticLoaded || walkLoaded) {
+                statusDiv.className = 'status warning';
+                statusDiv.innerHTML = `
+                    <p>⚠️ <strong>Partial loading...</strong></p>
+                    <p>Static: ${staticLoaded ? '✅' : '❌'}</p>
+                    <p>Walking: ${walkLoaded ? '✅' : '❌'}</p>
+                `;
+            }
+        }
+        
+        staticImg.onload = function() {
+            staticLoaded = true;
+            updateStatus();
+        };
+        
+        staticImg.onerror = function() {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `<p>❌ <strong>Error!</strong> anime-clean.png failed to load</p>`;
+        };
+        
+        walkImg.onload = function() {
+            walkLoaded = true;
+            updateStatus();
+        };
+        
+        walkImg.onerror = function() {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `<p>❌ <strong>Error!</strong> anime-walk.png failed to load</p>`;
+        };
+        
+        staticImg.src = '/assets/sprites/anime-clean.png';
+        walkImg.src = '/assets/sprites/anime-walk.png';
+    </script>
+</body>
+</html>

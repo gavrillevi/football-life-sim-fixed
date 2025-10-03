@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Life Sim - Graphics Demo</title>
+    <style>
+        :root { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          --primary-bg: #1a2332;
+          --secondary-bg: #0f1a31;
+          --card-bg: #243447;
+          --accent-blue: #4a9eff;
+          --accent-green: #2da44e;
+          --accent-orange: #ff8c42;
+          --accent-red: #ff6b6b;
+          --text-primary: #e7ecf3;
+          --text-secondary: #98a2b3;
+          --border-color: #3d4f66;
+        }
+
+        body { 
+          margin: 0; 
+          background: linear-gradient(135deg, var(--primary-bg) 0%, #0b1320 100%);
+          color: var(--text-primary);
+          min-height: 100vh;
+          padding: 20px;
+        }
+
+        .container { 
+          max-width: 1200px; 
+          margin: 0 auto; 
+        }
+
+        /* Location Background System */
+        .location-scene {
+          position: relative;
+          height: 200px;
+          border-radius: 16px;
+          margin-bottom: 20px;
+          overflow: hidden;
+          background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+        }
+
+        .location-scene.home {
+          background: linear-gradient(180deg, #87CEEB 0%, #90EE90 50%, #228B22 100%);
+        }
+
+        .location-scene.gym {
+          background: linear-gradient(180deg, #696969 0%, #A9A9A9 50%, #2F4F4F 100%);
+        }
+
+        .location-scene.school {
+          background: linear-gradient(180deg, #87CEEB 0%, #DDA0DD 30%, #8B4513 100%);
+        }
+
+        .location-scene.stadium {
+          background: linear-gradient(180deg, #87CEEB 0%, #32CD32 50%, #006400 100%);
+        }
+
+        .location-scene.shop {
+          background: linear-gradient(180deg, #87CEEB 0%, #FFB6C1 30%, #8B4513 100%);
+        }
+
+        /* Character Sprite */
+        .character-sprite {
+          width: 64px;
+          height: 80px;
+          position: relative;
+          margin-bottom: 10px;
+          animation: idle 2s ease-in-out infinite alternate;
+        }
+
+        .character-body {
+          width: 32px;
+          height: 40px;
+          background: #FFB366;
+          border-radius: 16px 16px 8px 8px;
+          position: absolute;
+          bottom: 20px;
+          left: 16px;
+          border: 2px solid #E69A4A;
+        }
+
+        .character-head {
+          width: 24px;
+          height: 24px;
+          background: #FFB366;
+          border-radius: 50%;
+          position: absolute;
+          bottom: 52px;
+          left: 20px;
+          border: 2px solid #E69A4A;
+        }
+
+        .character-hair {
+          width: 20px;
+          height: 12px;
+          background: #8B4513;
+          border-radius: 10px 10px 0 0;
+          position: absolute;
+          top: -6px;
+          left: 2px;
+        }
+
+        .character-legs {
+          width: 8px;
+          height: 20px;
+          background: #4169E1;
+          position: absolute;
+          bottom: 0;
+          border-radius: 0 0 4px 4px;
+        }
+
+        .character-legs.left { left: 20px; }
+        .character-legs.right { left: 36px; }
+
+        .character-arms {
+          width: 6px;
+          height: 16px;
+          background: #FFB366;
+          position: absolute;
+          top: 8px;
+          border-radius: 3px;
+          border: 1px solid #E69A4A;
+        }
+
+        .character-arms.left { left: 8px; }
+        .character-arms.right { right: 8px; }
+
+        /* Training Animation States */
+        .character-sprite.training {
+          animation: training 1s ease-in-out infinite;
+        }
+
+        .character-sprite.sleeping {
+          animation: sleeping 3s ease-in-out infinite;
+        }
+
+        .character-sprite.eating {
+          animation: eating 0.8s ease-in-out infinite;
+        }
+
+        @keyframes idle {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(-3px); }
+        }
+
+        @keyframes training {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-8px) scale(1.05); }
+        }
+
+        @keyframes sleeping {
+          0%, 100% { transform: translateY(2px) rotate(-2deg); }
+          50% { transform: translateY(4px) rotate(2deg); }
+        }
+
+        @keyframes eating {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+
+        /* Location Buildings/Objects */
+        .location-objects {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          height: 60%;
+          pointer-events: none;
+        }
+
+        .building {
+          position: absolute;
+          bottom: 0;
+        }
+
+        .house {
+          width: 80px;
+          height: 60px;
+          background: #8B4513;
+          left: 20px;
+          border-radius: 8px 8px 0 0;
+        }
+
+        .house::before {
+          content: '';
+          position: absolute;
+          top: -20px;
+          left: -10px;
+          width: 0;
+          height: 0;
+          border-left: 50px solid transparent;
+          border-right: 50px solid transparent;
+          border-bottom: 20px solid #A0522D;
+        }
+
+        .gym-equipment {
+          width: 40px;
+          height: 30px;
+          background: #696969;
+          right: 30px;
+          border-radius: 4px;
+        }
+
+        .school-building {
+          width: 100px;
+          height: 70px;
+          background: #CD853F;
+          left: 30px;
+          border-radius: 8px 8px 0 0;
+        }
+
+        .stadium-field {
+          width: 120px;
+          height: 40px;
+          background: #228B22;
+          left: 40px;
+          border-radius: 60px;
+          border: 3px solid white;
+        }
+
+        .shop-front {
+          width: 70px;
+          height: 50px;
+          background: #FF69B4;
+          right: 40px;
+          border-radius: 8px 8px 0 0;
+        }
+
+        .card { 
+          border: 1px solid var(--border-color); 
+          border-radius: 16px; 
+          padding: 20px; 
+          margin-bottom: 16px; 
+          background: var(--card-bg);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .demo-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+          margin-top: 20px;
+        }
+
+        button {
+          background: var(--accent-blue);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          margin: 4px;
+        }
+
+        button:hover {
+          background: #3a8eef;
+        }
+
+        h1, h2, h3 {
+          margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>⚽ Football Life Sim - Graphics System Demo</h1>
+            <p>This demo shows the new visual system inspired by Punch Club, The Sims, and Pocket League Story 2.</p>
+        </div>
+
+        <div class="demo-grid">
+            <!-- Home Location -->
+            <div class="card">
+                <h3>🏠 Home</h3>
+                <div class="location-scene home">
+                    <div class="location-objects">
+                        <div class="building house"></div>
+                    </div>
+                    <div class="character-sprite" id="home-char">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms left"></div>
+                            <div class="character-arms right"></div>
+                        </div>
+                        <div class="character-legs left"></div>
+                        <div class="character-legs right"></div>
+                    </div>
+                </div>
+                <p>Casual training at home with relaxing activities.</p>
+            </div>
+
+            <!-- Gym Location -->
+            <div class="card">
+                <h3>🏋️ Gym</h3>
+                <div class="location-scene gym">
+                    <div class="location-objects">
+                        <div class="building gym-equipment"></div>
+                    </div>
+                    <div class="character-sprite training" id="gym-char">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms left"></div>
+                            <div class="character-arms right"></div>
+                        </div>
+                        <div class="character-legs left"></div>
+                        <div class="character-legs right"></div>
+                    </div>
+                </div>
+                <p>Intense fitness training with weights and conditioning.</p>
+            </div>
+
+            <!-- School Location -->
+            <div class="card">
+                <h3>🏫 School</h3>
+                <div class="location-scene school">
+                    <div class="location-objects">
+                        <div class="building school-building"></div>
+                    </div>
+                    <div class="character-sprite" id="school-char">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms left"></div>
+                            <div class="character-arms right"></div>
+                        </div>
+                        <div class="character-legs left"></div>
+                        <div class="character-legs right"></div>
+                    </div>
+                </div>
+                <p>Skill development and tactical training at school.</p>
+            </div>
+
+            <!-- Stadium Location -->
+            <div class="card">
+                <h3>🏟️ Stadium</h3>
+                <div class="location-scene stadium">
+                    <div class="location-objects">
+                        <div class="building stadium-field"></div>
+                    </div>
+                    <div class="character-sprite" id="stadium-char">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms left"></div>
+                            <div class="character-arms right"></div>
+                        </div>
+                        <div class="character-legs left"></div>
+                        <div class="character-legs right"></div>
+                    </div>
+                </div>
+                <p>Professional team training and match simulation.</p>
+            </div>
+
+            <!-- Shop Location -->
+            <div class="card">
+                <h3>🛒 Shop</h3>
+                <div class="location-scene shop">
+                    <div class="location-objects">
+                        <div class="building shop-front"></div>
+                    </div>
+                    <div class="character-sprite eating" id="shop-char">
+                        <div class="character-head">
+                            <div class="character-hair"></div>
+                        </div>
+                        <div class="character-body">
+                            <div class="character-arms left"></div>
+                            <div class="character-arms right"></div>
+                        </div>
+                        <div class="character-legs left"></div>
+                        <div class="character-legs right"></div>
+                    </div>
+                </div>
+                <p>Buy meals, drinks, and equipment to improve performance.</p>
+            </div>
+
+            <!-- Animation Demo -->
+            <div class="card">
+                <h3>🎭 Character Animations</h3>
+                <div style="display: flex; gap: 20px; justify-content: center; align-items: end; height: 120px;">
+                    <div>
+                        <div class="character-sprite">
+                            <div class="character-head"><div class="character-hair"></div></div>
+                            <div class="character-body">
+                                <div class="character-arms left"></div>
+                                <div class="character-arms right"></div>
+                            </div>
+                            <div class="character-legs left"></div>
+                            <div class="character-legs right"></div>
+                        </div>
+                        <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px;">Idle</p>
+                    </div>
+                    <div>
+                        <div class="character-sprite training">
+                            <div class="character-head"><div class="character-hair"></div></div>
+                            <div class="character-body">
+                                <div class="character-arms left"></div>
+                                <div class="character-arms right"></div>
+                            </div>
+                            <div class="character-legs left"></div>
+                            <div class="character-legs right"></div>
+                        </div>
+                        <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px;">Training</p>
+                    </div>
+                    <div>
+                        <div class="character-sprite sleeping">
+                            <div class="character-head"><div class="character-hair"></div></div>
+                            <div class="character-body">
+                                <div class="character-arms left"></div>
+                                <div class="character-arms right"></div>
+                            </div>
+                            <div class="character-legs left"></div>
+                            <div class="character-legs right"></div>
+                        </div>
+                        <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px;">Sleeping</p>
+                    </div>
+                    <div>
+                        <div class="character-sprite eating">
+                            <div class="character-head"><div class="character-hair"></div></div>
+                            <div class="character-body">
+                                <div class="character-arms left"></div>
+                                <div class="character-arms right"></div>
+                            </div>
+                            <div class="character-legs left"></div>
+                            <div class="character-legs right"></div>
+                        </div>
+                        <p style="text-align: center; margin: 8px 0 0 0; font-size: 12px;">Eating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🎨 Graphics Features</h3>
+            <ul>
+                <li><strong>Location Scenes:</strong> Each location has a unique background gradient and building/object</li>
+                <li><strong>Animated Character:</strong> CSS-based sprite with different animation states (idle, training, sleeping, eating)</li>
+                <li><strong>Visual Feedback:</strong> Enhanced UI with icons, progress bars, and color-coded elements</li>
+                <li><strong>Responsive Design:</strong> Adapts to different screen sizes</li>
+                <li><strong>Game-like Aesthetics:</strong> Inspired by popular life simulation games</li>
+            </ul>
+            
+            <h4>🎮 Game Style Inspirations:</h4>
+            <ul>
+                <li><strong>Punch Club:</strong> Character sprite design and training progression visuals</li>
+                <li><strong>The Sims:</strong> Location-based scenes and character states</li>
+                <li><strong>Pocket League Story 2:</strong> Sports-themed UI and stat progression</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity to demonstrate the animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const characters = document.querySelectorAll('.character-sprite');
+            
+            // Cycle through different animation states every 3 seconds
+            setInterval(() => {
+                characters.forEach((char, index) => {
+                    if (char.id && !char.id.includes('char')) return; // Skip demo characters
+                    
+                    const states = ['', 'training', 'sleeping', 'eating'];
+                    const currentState = char.className.split(' ').find(c => states.includes(c)) || '';
+                    const currentIndex = states.indexOf(currentState);
+                    const nextIndex = (currentIndex + 1) % states.length;
+                    
+                    char.className = 'character-sprite ' + states[nextIndex];
+                });
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

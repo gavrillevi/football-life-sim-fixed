@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Life Sim - Beautiful Graphics Demo</title>
+    <style>
+        :root { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          --primary-bg: #0f172a;
+          --secondary-bg: #1e293b;
+          --card-bg: #334155;
+          --accent-blue: #3b82f6;
+          --accent-green: #10b981;
+          --accent-orange: #f59e0b;
+          --accent-red: #ef4444;
+          --text-primary: #f1f5f9;
+          --text-secondary: #94a3b8;
+          --border-color: #475569;
+        }
+
+        body { 
+          margin: 0; 
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+          color: var(--text-primary);
+          min-height: 100vh;
+          padding: 20px;
+          overflow-x: hidden;
+        }
+
+        .container { 
+          max-width: 1400px; 
+          margin: 0 auto; 
+        }
+
+        .card { 
+          border: 1px solid var(--border-color); 
+          border-radius: 20px; 
+          padding: 24px; 
+          margin-bottom: 20px; 
+          background: linear-gradient(145deg, var(--card-bg) 0%, #2d3748 100%);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 1px 8px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(10px);
+        }
+
+        /* Enhanced Character Sprite */
+        .character-sprite {
+          width: 80px;
+          height: 100px;
+          position: relative;
+          animation: idle 2.5s ease-in-out infinite alternate;
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .character-body {
+          width: 40px;
+          height: 50px;
+          background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
+          border-radius: 20px 20px 10px 10px;
+          position: absolute;
+          bottom: 25px;
+          left: 20px;
+          border: 3px solid #d97706;
+          box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-head {
+          width: 32px;
+          height: 32px;
+          background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
+          border-radius: 50%;
+          position: absolute;
+          bottom: 65px;
+          left: 24px;
+          border: 3px solid #d97706;
+          box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.2), 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-hair {
+          width: 26px;
+          height: 16px;
+          background: linear-gradient(145deg, #92400e 0%, #78350f 100%);
+          border-radius: 13px 13px 0 0;
+          position: absolute;
+          top: -8px;
+          left: 3px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-legs {
+          width: 12px;
+          height: 25px;
+          background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+          position: absolute;
+          bottom: 0;
+          border-radius: 0 0 6px 6px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-legs.left { left: 26px; }
+        .character-legs.right { left: 42px; }
+
+        .character-arms {
+          width: 8px;
+          height: 20px;
+          background: linear-gradient(145deg, #fbbf24 0%, #f59e0b 100%);
+          position: absolute;
+          top: 10px;
+          border-radius: 4px;
+          border: 2px solid #d97706;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .character-arms.left { left: 10px; }
+        .character-arms.right { right: 10px; }
+
+        /* Enhanced Animations */
+        .character-sprite.walking {
+          animation: walking 0.8s ease-in-out infinite;
+        }
+
+        .character-sprite.training {
+          animation: training 1.2s ease-in-out infinite;
+        }
+
+        @keyframes idle {
+          0% { transform: translateY(0px) scale(1); }
+          100% { transform: translateY(-4px) scale(1.02); }
+        }
+
+        @keyframes walking {
+          0%, 100% { 
+            transform: translateY(0px) rotate(0deg) scale(1); 
+          }
+          25% { 
+            transform: translateY(-3px) rotate(-2deg) scale(1.05); 
+          }
+          50% { 
+            transform: translateY(-1px) rotate(0deg) scale(1.02); 
+          }
+          75% { 
+            transform: translateY(-3px) rotate(2deg) scale(1.05); 
+          }
+        }
+
+        @keyframes training {
+          0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+          50% { transform: translateY(-12px) scale(1.1) rotate(5deg); }
+        }
+
+        /* Beautiful Interactive Objects */
+        .interactive-object {
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border-radius: 12px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .interactive-object::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .interactive-object:hover {
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .interactive-object:hover::before {
+          opacity: 1;
+        }
+
+        .interactive-object:active {
+          transform: translateY(-2px) scale(1.01);
+        }
+
+        /* Enhanced Tooltips */
+        .tooltip {
+          position: absolute;
+          background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+          color: white;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+          z-index: 30;
+          pointer-events: none;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tooltip::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          border: 6px solid transparent;
+          border-top-color: #1f2937;
+        }
+
+        /* Enhanced Action Menu */
+        .action-menu {
+          background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+          border: 2px solid var(--accent-blue);
+          border-radius: 16px;
+          padding: 20px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.2);
+          min-width: 320px;
+          backdrop-filter: blur(20px);
+        }
+
+        /* Enhanced Buttons */
+        button {
+          background: linear-gradient(145deg, var(--accent-blue) 0%, #2563eb 100%);
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 10px;
+          cursor: pointer;
+          margin: 6px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        button:hover {
+          background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        button:active {
+          transform: translateY(0px);
+        }
+
+        button:disabled {
+          background: linear-gradient(145deg, #374151 0%, #1f2937 100%);
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        /* Movement Trail Effects */
+        .movement-trail {
+          position: absolute;
+          width: 6px;
+          height: 6px;
+          background: radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%);
+          border-radius: 50%;
+          pointer-events: none;
+          animation: trailFade 2s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+          0% { 
+            opacity: 1; 
+            transform: scale(1); 
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, transparent 70%);
+          }
+          100% { 
+            opacity: 0; 
+            transform: scale(0.3); 
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+          }
+        }
+
+        /* Particle Effects */
+        .particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: var(--accent-blue);
+          border-radius: 50%;
+          pointer-events: none;
+          animation: particleFloat 3s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+          0% { 
+            opacity: 1; 
+            transform: translateY(0px) scale(1); 
+          }
+          100% { 
+            opacity: 0; 
+            transform: translateY(-50px) scale(0.5); 
+          }
+        }
+
+        h1, h2, h3 {
+          margin-top: 0;
+          background: linear-gradient(145deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        /* Enhanced Status Display */
+        .status-display {
+          background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-size: 14px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Glowing Effects */
+        .glow {
+          box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .pulse {
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { 
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+          }
+          50% { 
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 50px rgba(59, 130, 246, 0.4);
+          }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>⚽ Football Life Sim - Beautiful Graphics</h1>
+            <p style="font-size: 18px; color: var(--text-secondary);">Experience the enhanced visual design with modern graphics, smooth animations, and beautiful effects!</p>
+        </div>
+
+        <div class="card">
+            <h2>🏠 Enhanced Interactive Home</h2>
+            
+            <!-- Beautiful Home Scene -->
+            <div id="home-scene" style="position: relative; width: 100%; height: 600px; background: linear-gradient(180deg, #87ceeb 0%, #98fb98 30%, #90ee90 60%, #228b22 100%); border-radius: 20px; overflow: hidden; border: 3px solid var(--border-color); box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);">
+                
+                <!-- Enhanced House Structure -->
+                <div style="position: absolute; top: 8%; left: 32%; width: 60%; height: 65%; background: linear-gradient(145deg, #8b4513 0%, #a0522d 50%, #cd853f 100%); border-radius: 12px 12px 0 0; border: 4px solid #654321; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);">
+                    
+                    <!-- Beautiful Roof with Gradient -->
+                    <div style="position: absolute; top: -18%; left: -8%; width: 116%; height: 25%; background: linear-gradient(145deg, #a0522d 0%, #cd853f 50%, #daa520 100%); clip-path: polygon(8% 100%, 50% 0%, 92% 100%); border: 3px solid #8b4513; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);"></div>
+                    
+                    <!-- Enhanced Windows with Reflections -->
+                    <div style="position: absolute; top: 25%; left: 12%; width: 18%; height: 30%; background: linear-gradient(145deg, #87ceeb 0%, #b0e0e6 100%); border: 3px solid #4682b4; border-radius: 6px; box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);">
+                        <div style="position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);"></div>
+                    </div>
+                    <div style="position: absolute; top: 25%; right: 12%; width: 18%; height: 30%; background: linear-gradient(145deg, #87ceeb 0%, #b0e0e6 100%); border: 3px solid #4682b4; border-radius: 6px; box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);">
+                        <div style="position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; background: linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);"></div>
+                    </div>
+                    
+                    <!-- Beautiful Door -->
+                    <div style="position: absolute; bottom: 0%; left: 38%; width: 24%; height: 45%; background: linear-gradient(145deg, #654321 0%, #8b4513 100%); border: 3px solid #4a4a4a; border-radius: 6px 6px 0 0; box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 4px 8px rgba(0, 0, 0, 0.2);">
+                        <!-- Door Handle -->
+                        <div style="position: absolute; top: 45%; right: 15%; width: 8px; height: 8px; background: linear-gradient(145deg, #ffd700 0%, #daa520 100%); border-radius: 50%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);"></div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Character -->
+                <div id="character" class="character-sprite" style="position: absolute; bottom: 18%; left: 45%; z-index: 15; transition: none;">
+                    <div class="character-head">
+                        <div class="character-hair"></div>
+                        <!-- Eyes -->
+                        <div style="position: absolute; top: 40%; left: 25%; width: 4px; height: 4px; background: #000; border-radius: 50%;"></div>
+                        <div style="position: absolute; top: 40%; right: 25%; width: 4px; height: 4px; background: #000; border-radius: 50%;"></div>
+                        <!-- Smile -->
+                        <div style="position: absolute; bottom: 30%; left: 50%; transform: translateX(-50%); width: 8px; height: 4px; border: 2px solid #000; border-top: none; border-radius: 0 0 8px 8px;"></div>
+                    </div>
+                    <div class="character-body">
+                        <div class="character-arms left"></div>
+                        <div class="character-arms right"></div>
+                        <!-- Jersey Number -->
+                        <div style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); color: #fff; font-weight: bold; font-size: 12px;">10</div>
+                    </div>
+                    <div class="character-legs left"></div>
+                    <div class="character-legs right"></div>
+                </div>
+
+                <!-- Beautiful Interactive Objects -->
+                
+                <!-- Luxury Bed -->
+                <div class="interactive-object pulse" data-target="70,35" onclick="moveToObject(this, 'bed')" style="position: absolute; left: 75%; top: 12%; width: 22%; height: 28%; background: linear-gradient(145deg, #8b4513 0%, #a0522d 100%); border-radius: 12px; border: 3px solid #654321; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                    <!-- Mattress -->
+                    <div style="position: absolute; top: 15%; left: 8%; width: 84%; height: 25%; background: linear-gradient(145deg, #ffffff 0%, #f8f8ff 100%); border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);"></div>
+                    <!-- Blanket -->
+                    <div style="position: absolute; top: 35%; left: 8%; width: 84%; height: 55%; background: linear-gradient(145deg, #ff69b4 0%, #ff1493 100%); border-radius: 6px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);"></div>
+                    <!-- Pillows -->
+                    <div style="position: absolute; top: 8%; left: 15%; width: 25%; height: 20%; background: linear-gradient(145deg, #ffffff 0%, #f0f8ff 100%); border-radius: 50%; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);"></div>
+                    <div style="position: absolute; top: 8%; right: 15%; width: 25%; height: 20%; background: linear-gradient(145deg, #ffffff 0%, #f0f8ff 100%); border-radius: 50%; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);"></div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">🛏️ Luxury Bed - Rest and recover</div>
+                </div>
+
+                <!-- Modern TV Setup -->
+                <div class="interactive-object glow" data-target="22,60" onclick="moveToObject(this, 'tv')" style="position: absolute; left: 8%; top: 42%; width: 28%; height: 22%; background: linear-gradient(145deg, #2f4f4f 0%, #708090 100%); border-radius: 8px; border: 2px solid #1c1c1c; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                    <!-- TV Screen -->
+                    <div style="position: absolute; top: 8%; left: 55%; width: 40%; height: 65%; background: linear-gradient(145deg, #000000 0%, #1a1a1a 100%); border-radius: 4px; border: 3px solid #333; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);">
+                        <!-- Screen Reflection -->
+                        <div style="position: absolute; top: 10%; left: 10%; width: 30%; height: 30%; background: linear-gradient(45deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);"></div>
+                        <!-- Playing Content -->
+                        <div style="position: absolute; bottom: 10%; left: 10%; right: 10%; height: 20%; background: linear-gradient(90deg, #00ff00 0%, #32cd32 100%); opacity: 0.7;"></div>
+                    </div>
+                    <!-- Luxury Sofa -->
+                    <div style="position: absolute; bottom: 8%; left: 8%; width: 45%; height: 45%; background: linear-gradient(145deg, #8b4513 0%, #a0522d 100%); border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+                        <!-- Cushions -->
+                        <div style="position: absolute; top: 10%; left: 10%; width: 35%; height: 60%; background: linear-gradient(145deg, #daa520 0%, #b8860b 100%); border-radius: 6px;"></div>
+                        <div style="position: absolute; top: 10%; right: 10%; width: 35%; height: 60%; background: linear-gradient(145deg, #daa520 0%, #b8860b 100%); border-radius: 6px;"></div>
+                    </div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">📺 Entertainment Center - Watch game footage</div>
+                </div>
+
+                <!-- Modern Kitchen -->
+                <div class="interactive-object" data-target="55,35" onclick="moveToObject(this, 'kitchen')" style="position: absolute; left: 38%; top: 12%; width: 32%; height: 28%; background: linear-gradient(145deg, #f5f5dc 0%, #ddbf94 100%); border-radius: 10px; border: 3px solid #8b7355; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                    <!-- Refrigerator -->
+                    <div style="position: absolute; top: 15%; left: 8%; width: 25%; height: 70%; background: linear-gradient(145deg, #c0c0c0 0%, #a9a9a9 100%); border-radius: 4px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+                        <!-- Fridge Handle -->
+                        <div style="position: absolute; top: 30%; right: 5%; width: 3px; height: 20%; background: linear-gradient(145deg, #333 0%, #666 100%); border-radius: 2px;"></div>
+                        <!-- Fridge Light -->
+                        <div style="position: absolute; top: 10%; left: 20%; width: 60%; height: 8%; background: linear-gradient(90deg, #87ceeb 0%, #b0e0e6 100%); border-radius: 2px; opacity: 0.8;"></div>
+                    </div>
+                    <!-- Counter -->
+                    <div style="position: absolute; top: 60%; right: 8%; width: 60%; height: 25%; background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);">
+                        <!-- Sink -->
+                        <div style="position: absolute; top: 20%; right: 15%; width: 30%; height: 60%; background: linear-gradient(145deg, #c0c0c0 0%, #a9a9a9 100%); border-radius: 50%; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);"></div>
+                    </div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">🍽️ Modern Kitchen - Eat and drink</div>
+                </div>
+
+                <!-- Professional Football Pitch -->
+                <div class="interactive-object" data-target="25,85" onclick="moveToObject(this, 'backyard')" style="position: absolute; left: 3%; top: 68%; width: 42%; height: 28%; background: linear-gradient(145deg, #228b22 0%, #32cd32 50%, #90ee90 100%); border-radius: 25px; border: 4px solid #ffffff; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                    <!-- Center Circle -->
+                    <div style="position: absolute; top: 50%; left: 50%; width: 15%; height: 30%; border: 3px solid #ffffff; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                    <!-- Center Dot -->
+                    <div style="position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: #ffffff; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                    <!-- Goal Posts -->
+                    <div style="position: absolute; top: 15%; left: 8%; width: 6px; height: 70%; background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);"></div>
+                    <div style="position: absolute; top: 15%; right: 8%; width: 6px; height: 70%; background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);"></div>
+                    <!-- Crossbar -->
+                    <div style="position: absolute; top: 15%; left: 8%; right: 8%; height: 6px; background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);"></div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">⚽ Football Pitch - Play with friends</div>
+                </div>
+
+                <!-- Modern Street -->
+                <div class="interactive-object" data-target="72,85" onclick="moveToObject(this, 'street')" style="position: absolute; left: 48%; top: 73%; width: 48%; height: 18%; background: linear-gradient(90deg, #696969 0%, #a9a9a9 30%, #c0c0c0 50%, #a9a9a9 70%, #696969 100%); border-radius: 6px; border: 2px solid #2f2f2f; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);">
+                    <!-- Road Markings -->
+                    <div style="position: absolute; top: 45%; left: 0%; width: 100%; height: 6px; background: linear-gradient(90deg, #ffff00 0%, #ffd700 100%); opacity: 0.8;"></div>
+                    <!-- Dashed Lines -->
+                    <div style="position: absolute; top: 45%; left: 15%; width: 12%; height: 6px; background: #ffffff; border-radius: 2px;"></div>
+                    <div style="position: absolute; top: 45%; left: 35%; width: 12%; height: 6px; background: #ffffff; border-radius: 2px;"></div>
+                    <div style="position: absolute; top: 45%; left: 55%; width: 12%; height: 6px; background: #ffffff; border-radius: 2px;"></div>
+                    <div style="position: absolute; top: 45%; left: 75%; width: 12%; height: 6px; background: #ffffff; border-radius: 2px;"></div>
+                    <!-- Sidewalk -->
+                    <div style="position: absolute; bottom: -2px; left: 0%; width: 100%; height: 25%; background: linear-gradient(145deg, #d3d3d3 0%, #a9a9a9 100%); border-radius: 0 0 6px 6px;"></div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">🏃 Modern Street - Go jogging</div>
+                </div>
+
+                <!-- Premium Exercise Area -->
+                <div class="interactive-object" data-target="25,60" onclick="moveToObject(this, 'living-room')" style="position: absolute; left: 12%; top: 48%; width: 22%; height: 18%; background: linear-gradient(145deg, #deb887 0%, #f5deb3 100%); border-radius: 8px; border: 3px solid #cd853f; cursor: pointer; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);">
+                    <!-- Premium Exercise Mat -->
+                    <div style="position: absolute; top: 15%; left: 15%; width: 70%; height: 70%; background: linear-gradient(145deg, #4169e1 0%, #0000cd 100%); border-radius: 12px; border: 3px solid #1e3a8a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+                        <!-- Mat Pattern -->
+                        <div style="position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 8px;"></div>
+                    </div>
+                    <!-- Premium Dumbbells -->
+                    <div style="position: absolute; top: 8%; right: 8%; width: 12px; height: 6px; background: linear-gradient(145deg, #2f2f2f 0%, #000000 100%); border-radius: 3px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);"></div>
+                    <div style="position: absolute; top: 8%; right: 2%; width: 12px; height: 6px; background: linear-gradient(145deg, #2f2f2f 0%, #000000 100%); border-radius: 3px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);"></div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">💪 Exercise Area - Strength training</div>
+                </div>
+
+                <!-- Professional Juggling Zone -->
+                <div class="interactive-object pulse" data-target="67,60" onclick="moveToObject(this, 'juggling-area')" style="position: absolute; left: 58%; top: 48%; width: 18%; height: 18%; background: radial-gradient(circle, #ffe4b5 0%, #deb887 50%, #cd853f 100%); border-radius: 50%; border: 3px dashed #8b4513; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);">
+                    <!-- Professional Football -->
+                    <div style="position: absolute; top: 50%; left: 50%; width: 16px; height: 16px; background: radial-gradient(circle, #ff4500 0%, #dc143c 100%); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                        <!-- Ball Pattern -->
+                        <div style="position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 50%;"></div>
+                    </div>
+                    <!-- Juggling Trail Effect -->
+                    <div style="position: absolute; top: 30%; left: 30%; width: 4px; height: 4px; background: rgba(255, 69, 0, 0.5); border-radius: 50%; animation: particleFloat 2s ease-out infinite;"></div>
+                    <div style="position: absolute; top: 70%; right: 30%; width: 4px; height: 4px; background: rgba(255, 69, 0, 0.3); border-radius: 50%; animation: particleFloat 2.5s ease-out infinite;"></div>
+                    <div class="tooltip" style="display: none; position: absolute; top: -40px; left: 50%; transform: translateX(-50%);">⚽ Juggling Zone - Practice ball skills</div>
+                </div>
+
+                <!-- Enhanced Instructions -->
+                <div class="status-display" style="position: absolute; top: 15px; left: 15px; max-width: 280px;">
+                    <strong>🚶‍♂️ Enhanced Character Movement</strong><br />
+                    <span style="color: var(--text-secondary);">Click on any beautiful object to watch smooth character movement with enhanced animations!</span>
+                </div>
+
+                <!-- Enhanced Status -->
+                <div id="movement-status" class="status-display" style="position: absolute; top: 15px; right: 15px;">
+                    Status: <span id="status-text" style="color: var(--accent-green);">Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Menu -->
+        <div id="action-menu" class="action-menu" style="display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 100;">
+            <h4 id="object-name" style="margin: 0 0 16px 0; text-align: center; color: var(--accent-blue);"></h4>
+            <div id="action-buttons" style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;"></div>
+            <button onclick="hideActions()" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; font-size: 16px;">✕</button>
+        </div>
+
+        <div class="card">
+            <h3>✨ Enhanced Visual Features</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                <div>
+                    <h4 style="color: var(--accent-blue);">🎨 Modern Graphics</h4>
+                    <ul style="color: var(--text-secondary);">
+                        <li>Gradient backgrounds and textures</li>
+                        <li>Realistic shadows and depth</li>
+                        <li>Professional color schemes</li>
+                        <li>Smooth rounded corners</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent-green);">🎭 Enhanced Animations</h4>
+                    <ul style="color: var(--text-secondary);">
+                        <li>Smooth character movement</li>
+                        <li>Hover and click effects</li>
+                        <li>Particle trail systems</li>
+                        <li>Pulsing and glowing objects</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent-orange);">🏠 Realistic Objects</h4>
+                    <ul style="color: var(--text-secondary);">
+                        <li>Detailed furniture and appliances</li>
+                        <li>Professional sports equipment</li>
+                        <li>Modern home aesthetics</li>
+                        <li>Interactive visual feedback</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent-red);">⚡ Performance</h4>
+                    <ul style="color: var(--text-secondary);">
+                        <li>Hardware-accelerated CSS</li>
+                        <li>Optimized animations</li>
+                        <li>Smooth 60fps movement</li>
+                        <li>Responsive design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🎮 Try the Enhanced Experience!</h3>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                <button onclick="moveToRandomObject()" class="glow">🎲 Random Movement</button>
+                <button onclick="tourHouse()" style="background: linear-gradient(145deg, var(--accent-green) 0%, #059669 100%);">🏠 Luxury House Tour</button>
+                <button onclick="resetCharacter()" style="background: linear-gradient(145deg, var(--accent-orange) 0%, #d97706 100%);">🔄 Reset Position</button>
+                <button onclick="addParticles()" style="background: linear-gradient(145deg, var(--accent-red) 0%, #dc2626 100%);">✨ Add Particles</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let characterPosition = { x: 45, y: 20 };
+        let isWalking = false;
+        let walkingDirection = 'right';
+
+        const objects = {
+            'bed': { name: '🛏️ Luxury Bed', target: { x: 70, y: 35 }, actions: [{ id: 'sleep', label: 'Sleep', icon: '😴' }] },
+            'tv': { name: '📺 Entertainment Center', target: { x: 22, y: 60 }, actions: [{ id: 'watch', label: 'Watch Footage', icon: '📺' }] },
+            'kitchen': { name: '🍽️ Modern Kitchen', target: { x: 55, y: 35 }, actions: [{ id: 'eat', label: 'Eat Meal', icon: '🍽️' }, { id: 'drink', label: 'Have Drink', icon: '🥤' }] },
+            'backyard': { name: '⚽ Football Pitch', target: { x: 25, y: 85 }, actions: [{ id: 'play', label: 'Play with Friends', icon: '⚽' }] },
+            'street': { name: '🏃 Modern Street', target: { x: 72, y: 85 }, actions: [{ id: 'jog', label: 'Go Jogging', icon: '🏃' }] },
+            'living-room': { name: '💪 Exercise Area', target: { x: 25, y: 60 }, actions: [{ id: 'pushups', label: 'Strength Training', icon: '💪' }] },
+            'juggling-area': { name: '⚽ Juggling Zone', target: { x: 67, y: 60 }, actions: [{ id: 'juggle', label: 'Practice Skills', icon: '⚽' }] }
+        };
+
+        function updateStatus(status) {
+            const statusEl = document.getElementById('status-text');
+            statusEl.textContent = status;
+            statusEl.style.color = status === 'Ready' ? 'var(--accent-green)' : 
+                                  status.includes('Walking') ? 'var(--accent-blue)' : 
+                                  'var(--accent-orange)';
+        }
+
+        function moveCharacterTo(targetX, targetY, callback) {
+            if (isWalking) return;
+            
+            isWalking = true;
+            walkingDirection = targetX > characterPosition.x ? 'right' : 'left';
+            updateStatus(`Walking ${walkingDirection}...`);
+            
+            const character = document.getElementById('character');
+            character.className = 'character-sprite walking';
+            character.style.transform = walkingDirection === 'left' ? 'scaleX(-1)' : 'scaleX(1)';
+            
+            const distance = Math.sqrt(Math.pow(targetX - characterPosition.x, 2) + Math.pow(targetY - characterPosition.y, 2));
+            const duration = Math.max(1000, distance * 30);
+            
+            const startTime = Date.now();
+            const startX = characterPosition.x;
+            const startY = characterPosition.y;
+            
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentX = startX + (targetX - startX) * easeProgress;
+                const currentY = startY + (targetY - startY) * easeProgress;
+                
+                characterPosition = { x: currentX, y: currentY };
+                
+                character.style.bottom = `${100 - currentY - 10}%`;
+                character.style.left = `${currentX - 4}%`;
+                
+                // Enhanced trail effect
+                if (Math.random() < 0.4) {
+                    createEnhancedTrail(currentX, currentY);
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isWalking = false;
+                    character.className = 'character-sprite';
+                    updateStatus('Ready');
+                    if (callback) callback();
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        }
+
+        function createEnhancedTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'movement-trail';
+            trail.style.bottom = `${100 - y - 5}%`;
+            trail.style.left = `${x}%`;
+            document.getElementById('home-scene').appendChild(trail);
+            
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 2000);
+        }
+
+        function addParticles() {
+            const scene = document.getElementById('home-scene');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.bottom = Math.random() * 20 + '%';
+                    particle.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                    scene.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        if (particle.parentNode) {
+                            particle.parentNode.removeChild(particle);
+                        }
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+
+        function moveToObject(element, objectId) {
+            if (isWalking) return;
+            const obj = objects[objectId];
+            if (obj) {
+                moveCharacterTo(obj.target.x, obj.target.y, () => {
+                    showActions(objectId);
+                });
+            }
+        }
+
+        function showActions(objectId) {
+            const obj = objects[objectId];
+            if (!obj) return;
+
+            const menu = document.getElementById('action-menu');
+            const nameEl = document.getElementById('object-name');
+            const buttonsEl = document.getElementById('action-buttons');
+
+            nameEl.textContent = obj.name;
+            buttonsEl.innerHTML = '';
+
+            obj.actions.forEach(action => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span>${action.icon}</span> ${action.label}`;
+                button.onclick = () => performAction(action.id, objectId);
+                buttonsEl.appendChild(button);
+            });
+
+            menu.style.display = 'block';
+        }
+
+        function hideActions() {
+            document.getElementById('action-menu').style.display = 'none';
+        }
+
+        function performAction(actionId, objectId) {
+            const character = document.getElementById('character');
+            character.className = 'character-sprite training';
+            updateStatus(`Performing ${actionId}...`);
+            
+            // Add particles during action
+            addParticles();
+            
+            setTimeout(() => {
+                character.className = 'character-sprite';
+                updateStatus('Ready');
+                alert(`✨ Enhanced action completed: ${actionId} at ${objects[objectId].name}!`);
+            }, 2500);
+            
+            hideActions();
+        }
+
+        function moveToRandomObject() {
+            if (isWalking) return;
+            const objectIds = Object.keys(objects);
+            const randomId = objectIds[Math.floor(Math.random() * objectIds.length)];
+            const obj = objects[randomId];
+            moveCharacterTo(obj.target.x, obj.target.y);
+        }
+
+        function tourHouse() {
+            if (isWalking) return;
+            const tour = ['kitchen', 'tv', 'living-room', 'juggling-area', 'bed', 'backyard', 'street'];
+            let currentStop = 0;
+            
+            function nextStop() {
+                if (currentStop < tour.length) {
+                    const obj = objects[tour[currentStop]];
+                    moveCharacterTo(obj.target.x, obj.target.y, () => {
+                        addParticles();
+                        currentStop++;
+                        setTimeout(nextStop, 1500);
+                    });
+                }
+            }
+            
+            nextStop();
+        }
+
+        function resetCharacter() {
+            if (isWalking) return;
+            moveCharacterTo(45, 20);
+        }
+
+        // Enhanced hover effects
+        document.querySelectorAll('.interactive-object').forEach(obj => {
+            obj.addEventListener('mouseenter', function() {
+                const tooltip = this.querySelector('.tooltip');
+                if (tooltip) {
+                    tooltip.style.display = 'block';
+                }
+                this.style.filter = 'brightness(1.1) saturate(1.2)';
+            });
+            
+            obj.addEventListener('mouseleave', function() {
+                const tooltip = this.querySelector('.tooltip');
+                if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
+                this.style.filter = 'none';
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('action-menu');
+            const isClickInside = menu.contains(e.target) || e.target.classList.contains('interactive-object');
+            
+            if (!isClickInside && menu.style.display === 'block') {
+                hideActions();
+            }
+        });
+
+        // Initialize
+        updateStatus('Ready');
+        
+        // Add some ambient particles on load
+        setTimeout(addParticles, 1000);
+    </script>
+</body>
+</html>

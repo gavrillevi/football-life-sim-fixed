@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite System Test - Football Life Sim</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #2a5d31;
+            color: #f4e4bc;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #f4e4bc;
+            color: #2d1810;
+            padding: 20px;
+            border-radius: 8px;
+            border: 4px solid #8b4513;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .test-item {
+            border: 2px solid #8b4513;
+            padding: 16px;
+            border-radius: 4px;
+            background: #fff;
+            text-align: center;
+        }
+        .sprite-container {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            image-rendering: pixelated;
+        }
+        .status {
+            padding: 8px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-weight: bold;
+        }
+        .status.missing {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+        .status.found {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        .instructions {
+            background: #e3f2fd;
+            border: 2px solid #1976d2;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #1565c0;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Sprite System Test</h1>
+        <p>This page tests if your generated images are working correctly.</p>
+
+        <div class="instructions">
+            <h3>📋 Instructions</h3>
+            <ol>
+                <li>Generate images using AI with the prompts from <code>GENERATE_THESE_IMAGES.md</code></li>
+                <li>Save them in the correct folders:
+                    <ul>
+                        <li><code>public/assets/sprites/</code> - for character and objects</li>
+                        <li><code>public/assets/backgrounds/</code> - for home-interior.png</li>
+                    </ul>
+                </li>
+                <li>Refresh this page to see the results</li>
+                <li>Green = Image found and loaded ✅</li>
+                <li>Red = Image missing, using fallback ❌</li>
+            </ol>
+        </div>
+
+        <h2>🎨 Sprite Loading Test</h2>
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>Character Sprite</h4>
+                <div class="sprite-container">
+                    <img id="character" src="./assets/sprites/character.png" alt="Character" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Character')" onload="showSuccess('character-status')">
+                </div>
+                <div id="character-status" class="status missing">❌ Missing: character.png</div>
+                <small>32x32 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Bed Sprite</h4>
+                <div class="sprite-container">
+                    <img id="bed" src="./assets/sprites/bed.png" alt="Bed" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Bed')" onload="showSuccess('bed-status')">
+                </div>
+                <div id="bed-status" class="status missing">❌ Missing: bed.png</div>
+                <small>64x48 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>TV & Sofa Sprite</h4>
+                <div class="sprite-container">
+                    <img id="tv" src="./assets/sprites/tv.png" alt="TV" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'TV & Sofa')" onload="showSuccess('tv-status')">
+                </div>
+                <div id="tv-status" class="status missing">❌ Missing: tv.png</div>
+                <small>80x64 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Kitchen Sprite</h4>
+                <div class="sprite-container">
+                    <img id="kitchen" src="./assets/sprites/kitchen.png" alt="Kitchen" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Kitchen')" onload="showSuccess('kitchen-status')">
+                </div>
+                <div id="kitchen-status" class="status missing">❌ Missing: kitchen.png</div>
+                <small>96x64 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Football Pitch</h4>
+                <div class="sprite-container">
+                    <img id="pitch" src="./assets/sprites/football-pitch.png" alt="Football Pitch" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Football Pitch')" onload="showSuccess('pitch-status')">
+                </div>
+                <div id="pitch-status" class="status missing">❌ Missing: football-pitch.png</div>
+                <small>128x96 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Street Sprite</h4>
+                <div class="sprite-container">
+                    <img id="street" src="./assets/sprites/street.png" alt="Street" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Street')" onload="showSuccess('street-status')">
+                </div>
+                <div id="street-status" class="status missing">❌ Missing: street.png</div>
+                <small>160x48 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Exercise Mat</h4>
+                <div class="sprite-container">
+                    <img id="exercise" src="./assets/sprites/exercise-mat.png" alt="Exercise Mat" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Exercise Mat')" onload="showSuccess('exercise-status')">
+                </div>
+                <div id="exercise-status" class="status missing">❌ Missing: exercise-mat.png</div>
+                <small>64x48 pixels</small>
+            </div>
+
+            <div class="test-item">
+                <h4>Home Background</h4>
+                <div class="sprite-container" style="height: 120px;">
+                    <img id="home-bg" src="./assets/backgrounds/home-interior.png" alt="Home Interior" style="max-width: 100%; max-height: 100%; image-rendering: pixelated;" onerror="showFallback(this, 'Home Interior')" onload="showSuccess('home-bg-status')">
+                </div>
+                <div id="home-bg-status" class="status missing">❌ Missing: home-interior.png</div>
+                <small>800x600 pixels</small>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>🚀 Next Steps</h3>
+            <p><strong>Once all images show green checkmarks:</strong></p>
+            <ol>
+                <li>Run the game: <code>npm run dev</code></li>
+                <li>Go to the Home location</li>
+                <li>See your AI-generated graphics in action!</li>
+                <li>The game will automatically use your images instead of CSS shapes</li>
+            </ol>
+        </div>
+
+        <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 16px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="margin-top: 0; color: #856404;">💡 Pro Tip</h4>
+            <p style="margin-bottom: 0; color: #856404;">The game has smart fallbacks! If an image is missing, it will show a placeholder with the object name. This means the game always works, even without all images.</p>
+        </div>
+    </div>
+
+    <script>
+        function showFallback(img, name) {
+            img.style.display = 'none';
+            const container = img.parentElement;
+            const fallback = document.createElement('div');
+            fallback.style.cssText = `
+                width: 100%;
+                height: 100%;
+                background: #ddd;
+                border: 2px solid #999;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: #666;
+                font-family: 'Courier New', monospace;
+            `;
+            fallback.textContent = name;
+            container.appendChild(fallback);
+        }
+
+        function showSuccess(statusId) {
+            const status = document.getElementById(statusId);
+            status.className = 'status found';
+            status.textContent = '✅ Found and loaded!';
+        }
+
+        // Test all images on load
+        window.addEventListener('load', function() {
+            console.log('Testing sprite system...');
+            
+            // Count loaded images after a short delay
+            setTimeout(() => {
+                const foundImages = document.querySelectorAll('.status.found').length;
+                const totalImages = document.querySelectorAll('.status').length;
+                
+                console.log(`Loaded ${foundImages}/${totalImages} images`);
+                
+                if (foundImages === totalImages) {
+                    document.body.insertAdjacentHTML('afterbegin', `
+                        <div style="position: fixed; top: 20px; right: 20px; background: #4caf50; color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; z-index: 1000;">
+                            🎉 All sprites loaded! Game ready!
+                        </div>
+                    `);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

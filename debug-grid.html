@@ -1,0 +1,42 @@
+<!doctype html>
+<title>Debug Grid Generator</title>
+<canvas id="grid" width="128" height="64"></canvas>
+<script>
+const canvas = document.getElementById('grid');
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = 'transparent';
+ctx.fillRect(0, 0, 128, 64);
+
+// Draw frame boundaries
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 1;
+for (let i = 0; i <= 4; i++) {
+  ctx.beginPath();
+  ctx.moveTo(i * 32, 0);
+  ctx.lineTo(i * 32, 64);
+  ctx.stroke();
+}
+
+// Draw center lines
+ctx.strokeStyle = 'green';
+ctx.beginPath();
+ctx.moveTo(0, 32);
+ctx.lineTo(128, 32);
+ctx.stroke();
+
+// Frame numbers
+ctx.fillStyle = 'yellow';
+ctx.font = '12px monospace';
+for (let i = 0; i < 4; i++) {
+  ctx.fillText(i.toString(), i * 32 + 2, 12);
+}
+
+// Download link
+const link = document.createElement('a');
+link.download = 'debug-grid.png';
+link.href = canvas.toDataURL();
+link.textContent = 'Download Debug Grid';
+document.body.appendChild(link);
+</script>
+
+

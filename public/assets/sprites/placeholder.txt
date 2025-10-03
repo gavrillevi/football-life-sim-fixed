@@ -1,0 +1,12 @@
+This folder is ready for your generated images!
+
+Put these files here:
+- character.png
+- bed.png  
+- tv.png
+- kitchen.png
+- football-pitch.png
+- street.png
+- exercise-mat.png
+
+The game will automatically use them once you add them.

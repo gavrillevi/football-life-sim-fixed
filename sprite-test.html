@@ -1,0 +1,214 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Sprite Sheet Test - Pixel Perfect</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a2332 0%, #0b1320 100%);
+    color: #e7ecf3;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .test-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  canvas { 
+    image-rendering: pixelated; 
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 256px;   /* 32*8 */
+    height: 512px;  /* 64*8 */
+    background: #1a1a1a;
+    display: block; 
+    margin: 20px auto;
+    border: 2px solid #3d4f66;
+    border-radius: 8px;
+  }
+  
+  .controls {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .controls button {
+    background: #4a9eff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .controls button:hover {
+    background: #3a8eef;
+    transform: translateY(-2px);
+  }
+  
+  .info {
+    background: #243447;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid #3d4f66;
+  }
+  
+  .status {
+    background: #2da44e;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+  }
+</style>
+
+<div class="test-container">
+  <h1>🎬 Sprite Sheet Test - Pixel Perfect</h1>
+  
+  <div class="info">
+    <h3>🔧 Technical Specs:</h3>
+    <ul>
+      <li><strong>Frame Size:</strong> 32×64 pixels per frame</li>
+      <li><strong>Sheet Size:</strong> 128×64 pixels (4 frames)</li>
+      <li><strong>Rendering:</strong> Pixel-perfect, no smoothing</li>
+      <li><strong>Canvas:</strong> imageSmoothingEnabled = false</li>
+      <li><strong>CSS:</strong> image-rendering: pixelated</li>
+    </ul>
+  </div>
+  
+  <div class="controls">
+    <button onclick="switchSprite('anime-walk.png')">🚶 Walk Animation</button>
+    <button onclick="switchSprite('anime-idle.png')">🫁 Idle Animation</button>
+    <button onclick="toggleDebug()">🔍 Toggle Debug Grid</button>
+    <button onclick="toggleDirection()">🔄 Flip Direction</button>
+  </div>
+  
+  <canvas id="c" width="32" height="64"></canvas>
+  
+  <div class="status" id="status">
+    <p>🎮 Loading sprite sheet...</p>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d', {alpha: true});
+ctx.imageSmoothingEnabled = false;
+
+const SPRITE_W = 32, SPRITE_H = 64;
+const FRAMES = 4;
+const FPS = 8;
+let currentSprite = 'anime-walk.png';
+let showDebug = false;
+let flipped = false;
+
+const img = new Image();
+img.crossOrigin = 'anonymous';
+
+let frame = 0, acc = 0;
+let last = performance.now();
+
+function loadSprite(src) {
+  img.src = `assets/sprites/${src}`;
+  img.onload = () => {
+    document.getElementById('status').innerHTML = 
+      `✅ Loaded: ${src} (${img.width}×${img.height})`;
+    console.log(`Sprite loaded: ${img.width}×${img.height}`);
+  };
+  img.onerror = () => {
+    document.getElementById('status').innerHTML = 
+      `❌ Failed to load: ${src}`;
+  };
+}
+
+function switchSprite(src) {
+  currentSprite = src;
+  loadSprite(src);
+}
+
+function toggleDebug() {
+  showDebug = !showDebug;
+}
+
+function toggleDirection() {
+  flipped = !flipped;
+}
+
+function drawDebugGrid() {
+  if (!showDebug) return;
+  
+  ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+  ctx.lineWidth = 1;
+  
+  // Draw frame boundaries
+  for (let i = 0; i <= FRAMES; i++) {
+    const x = i * SPRITE_W;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, SPRITE_H);
+    ctx.stroke();
+  }
+  
+  // Draw center crosshair
+  ctx.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+  ctx.beginPath();
+  ctx.moveTo(SPRITE_W/2, 0);
+  ctx.lineTo(SPRITE_W/2, SPRITE_H);
+  ctx.moveTo(0, SPRITE_H/2);
+  ctx.lineTo(SPRITE_W, SPRITE_H/2);
+  ctx.stroke();
+  
+  // Frame numbers
+  ctx.fillStyle = 'rgba(255, 255, 0, 0.8)';
+  ctx.font = '12px monospace';
+  ctx.fillText(`Frame ${frame}`, 2, 12);
+}
+
+function loop(now) {
+  const dt = (now - last) / 1000;
+  last = now; 
+  acc += dt;
+  const spf = 1 / FPS;
+  
+  while (acc >= spf) { 
+    frame = (frame + 1) % FRAMES; 
+    acc -= spf; 
+  }
+  
+  ctx.clearRect(0, 0, SPRITE_W, SPRITE_H);
+  
+  // Draw debug grid first
+  drawDebugGrid();
+  
+  // Draw sprite frame
+  if (img.complete && img.naturalWidth > 0) {
+    const sourceX = frame * SPRITE_W;
+    const scaleX = flipped ? -1 : 1;
+    
+    ctx.save();
+    if (flipped) {
+      ctx.scale(-1, 1);
+      ctx.translate(-SPRITE_W, 0);
+    }
+    
+    ctx.drawImage(
+      img,
+      sourceX, 0, SPRITE_W, SPRITE_H,
+      0, 0, SPRITE_W, SPRITE_H
+    );
+    ctx.restore();
+  }
+  
+  requestAnimationFrame(loop);
+}
+
+// Start with walk animation
+loadSprite('anime-walk.png');
+requestAnimationFrame(loop);
+</script>
+

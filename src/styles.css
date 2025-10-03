@@ -1,0 +1,660 @@
+:root { 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --primary-bg: #1a2332;
+  --secondary-bg: #0f1a31;
+  --card-bg: #243447;
+  --accent-blue: #4a9eff;
+  --accent-green: #2da44e;
+  --accent-orange: #ff8c42;
+  --accent-red: #ff6b6b;
+  --text-primary: #e7ecf3;
+  --text-secondary: #98a2b3;
+  --border-color: #3d4f66;
+}
+
+body { 
+  margin: 0; 
+  background: linear-gradient(135deg, var(--primary-bg) 0%, #0b1320 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 24px;
+}
+
+/* Location Background System */
+.location-scene {
+  position: relative;
+  height: 200px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.location-scene.home {
+  background: linear-gradient(180deg, #87CEEB 0%, #90EE90 50%, #228B22 100%);
+}
+
+.location-scene.gym {
+  background: linear-gradient(180deg, #696969 0%, #A9A9A9 50%, #2F4F4F 100%);
+}
+
+.location-scene.school {
+  background: linear-gradient(180deg, #87CEEB 0%, #DDA0DD 30%, #8B4513 100%);
+}
+
+.location-scene.stadium {
+  background: linear-gradient(180deg, #87CEEB 0%, #32CD32 50%, #006400 100%);
+}
+
+.location-scene.shop {
+  background: linear-gradient(180deg, #87CEEB 0%, #FFB6C1 30%, #8B4513 100%);
+}
+
+/* Character Sprite Base */
+.character-sprite {
+  position: relative;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.character-body {
+  width: 32px;
+  height: 40px;
+  background: #FFB366;
+  border-radius: 16px 16px 8px 8px;
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  border: 2px solid #E69A4A;
+}
+
+.character-head {
+  width: 24px;
+  height: 24px;
+  background: #FFB366;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 52px;
+  left: 20px;
+  border: 2px solid #E69A4A;
+}
+
+.character-hair {
+  width: 20px;
+  height: 12px;
+  background: #8B4513;
+  border-radius: 10px 10px 0 0;
+  position: absolute;
+  top: -6px;
+  left: 2px;
+}
+
+.character-legs {
+  width: 8px;
+  height: 20px;
+  background: #4169E1;
+  position: absolute;
+  bottom: 0;
+  border-radius: 0 0 4px 4px;
+}
+
+.character-legs.left { left: 20px; }
+.character-legs.right { left: 36px; }
+
+.character-arms {
+  width: 6px;
+  height: 16px;
+  background: #FFB366;
+  position: absolute;
+  top: 8px;
+  border-radius: 3px;
+  border: 1px solid #E69A4A;
+}
+
+.character-arms.left { left: 8px; }
+.character-arms.right { right: 8px; }
+
+/* Character Animation States - CSS-based with direction support */
+.character-sprite.idle {
+  animation: idleBreathing 2s ease-in-out infinite;
+}
+
+.character-sprite.idle[data-direction="left"] {
+  animation: idleBreathingLeft 2s ease-in-out infinite;
+}
+
+.character-sprite.walking {
+  animation: walkingBounce 0.8s ease-in-out infinite;
+}
+
+.character-sprite.walking[data-direction="left"] {
+  animation: walkingBounceLeft 0.8s ease-in-out infinite;
+}
+
+.character-sprite.training {
+  animation: trainingPulse 1s ease-in-out infinite;
+}
+
+.character-sprite.sleeping {
+  animation: sleepingGlow 3s ease-in-out infinite;
+}
+
+.character-sprite.eating {
+  animation: eatingScale 0.8s ease-in-out infinite;
+}
+
+/* Character animations with transform support for direction */
+@keyframes idleBreathing {
+  0% { transform: scale(1) scaleX(1); }
+  50% { transform: scale(1.02) scaleX(1); }
+  100% { transform: scale(1) scaleX(1); }
+}
+
+@keyframes idleBreathingLeft {
+  0% { transform: scale(1) scaleX(-1); }
+  50% { transform: scale(1.02) scaleX(-1); }
+  100% { transform: scale(1) scaleX(-1); }
+}
+
+@keyframes walkingBounce {
+  0% { transform: translateY(0px) scaleX(1); }
+  50% { transform: translateY(-2px) scaleX(1); }
+  100% { transform: translateY(0px) scaleX(1); }
+}
+
+@keyframes walkingBounceLeft {
+  0% { transform: translateY(0px) scaleX(-1); }
+  50% { transform: translateY(-2px) scaleX(-1); }
+  100% { transform: translateY(0px) scaleX(-1); }
+}
+
+@keyframes trainingPulse {
+  0%, 100% { 
+    filter: brightness(1) contrast(1);
+    box-shadow: 0 0 0 rgba(74, 158, 255, 0);
+  }
+  50% { 
+    filter: brightness(1.1) contrast(1.1);
+    box-shadow: 0 0 8px rgba(74, 158, 255, 0.5);
+  }
+}
+
+@keyframes sleepingGlow {
+  0%, 100% { 
+    filter: brightness(0.8) hue-rotate(0deg);
+    opacity: 0.9;
+  }
+  50% { 
+    filter: brightness(1) hue-rotate(10deg);
+    opacity: 1;
+  }
+}
+
+@keyframes eatingScale {
+  0%, 100% { 
+    filter: brightness(1) saturate(1);
+  }
+  50% { 
+    filter: brightness(1.1) saturate(1.2);
+  }
+}
+
+/* Location Buildings/Objects */
+.location-objects {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60%;
+  pointer-events: none;
+}
+
+.building {
+  position: absolute;
+  bottom: 0;
+}
+
+.house {
+  width: 80px;
+  height: 60px;
+  background: #8B4513;
+  left: 20px;
+  border-radius: 8px 8px 0 0;
+}
+
+.house::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 20px solid #A0522D;
+}
+
+.gym-equipment {
+  width: 40px;
+  height: 30px;
+  background: #696969;
+  right: 30px;
+  border-radius: 4px;
+}
+
+.school-building {
+  width: 100px;
+  height: 70px;
+  background: #CD853F;
+  left: 30px;
+  border-radius: 8px 8px 0 0;
+}
+
+.stadium-field {
+  width: 120px;
+  height: 40px;
+  background: #228B22;
+  left: 40px;
+  border-radius: 60px;
+  border: 3px solid white;
+}
+
+.shop-front {
+  width: 70px;
+  height: 50px;
+  background: #FF69B4;
+  right: 40px;
+  border-radius: 8px 8px 0 0;
+}
+
+/* Enhanced UI Components */
+.tabs { 
+  display: flex; 
+  gap: 12px; 
+  margin-bottom: 16px; 
+  flex-wrap: wrap;
+  background: var(--secondary-bg);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.tab { 
+  padding: 12px 20px; 
+  border: 1px solid var(--border-color); 
+  border-radius: 8px; 
+  cursor: pointer;
+  background: var(--card-bg);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.tab:hover {
+  background: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+.tab.active { 
+  background: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+.card { 
+  border: 1px solid var(--border-color); 
+  border-radius: 16px; 
+  padding: 20px; 
+  margin-bottom: 16px; 
+  background: var(--card-bg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.row { display: flex; gap: 20px; flex-wrap: wrap; }
+.col { flex: 1 1 300px; }
+
+/* Enhanced Buttons */
+button { 
+  background: var(--accent-blue); 
+  color: white; 
+  border: none; 
+  padding: 12px 20px; 
+  border-radius: 10px; 
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  background: #3a8eef;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(74, 158, 255, 0.4);
+}
+
+button:active {
+  transform: translateY(0px);
+}
+
+button.secondary { 
+  background: var(--border-color);
+}
+
+button.secondary:hover {
+  background: #4d6080;
+}
+
+button:disabled {
+  background: #2a3550;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btns .active { 
+  outline: 3px solid var(--accent-green);
+  background: var(--accent-green);
+}
+
+.btns { 
+  display: flex; 
+  gap: 12px; 
+  flex-wrap: wrap;
+}
+
+/* Enhanced Stats Display */
+.stat { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(61, 79, 102, 0.3);
+}
+
+.stat:last-child {
+  border-bottom: none;
+}
+
+.stat-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.stat-icon.pace { background: var(--accent-orange); }
+.stat-icon.strength { background: var(--accent-red); }
+.stat-icon.technique { background: var(--accent-blue); }
+.stat-icon.vision { background: #9c88ff; }
+.stat-icon.defense { background: #6c757d; }
+.stat-icon.shooting { background: var(--accent-red); }
+.stat-icon.passing { background: var(--accent-green); }
+.stat-icon.positioning { background: #17a2b8; }
+
+/* Progress Bars */
+.bar { 
+  height: 12px; 
+  border-radius: 6px; 
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.fill { 
+  height: 100%; 
+  border-radius: 6px; 
+  background: linear-gradient(90deg, var(--accent-green) 0%, #51cf66 100%);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Skill Level Progress */
+.skill-progress {
+  width: 80px;
+  height: 6px;
+  background: var(--secondary-bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.skill-progress .fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue) 0%, #6bb6ff 100%);
+}
+
+/* Calendar Enhancement */
+.calendar { 
+  display: flex; 
+  gap: 8px;
+  background: var(--secondary-bg);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.day { 
+  flex: 1 1 0; 
+  text-align: center; 
+  padding: 12px 8px; 
+  border: 1px solid var(--border-color); 
+  border-radius: 10px; 
+  background: var(--card-bg);
+  transition: all 0.3s ease;
+}
+
+.day:hover {
+  transform: translateY(-2px);
+  background: var(--accent-blue);
+}
+
+.day .num { 
+  font-size: 18px; 
+  font-weight: 700;
+}
+
+.day .label { 
+  font-size: 12px; 
+  color: var(--text-secondary);
+}
+
+.day.active { 
+  outline: 2px solid var(--accent-blue); 
+  background: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+}
+
+/* Modal Enhancement */
+.modalOverlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal { 
+  max-width: 700px; 
+  width: 90%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Training Feedback */
+.training-tick {
+  background: linear-gradient(135deg, var(--secondary-bg) 0%, var(--card-bg) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(74, 158, 255, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(74, 158, 255, 0.6); }
+}
+
+.gain-text {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.loss-text {
+  color: var(--accent-red);
+  font-weight: 600;
+}
+
+/* Timeline Enhancement */
+.timeline-event {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #495057;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--accent-blue);
+  transition: transform 0.2s ease;
+}
+
+.timeline-event:hover {
+  transform: translateX(4px);
+}
+
+/* Resource Bars */
+.resource-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+.resource-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.resource-icon.hunger { background: var(--accent-orange); }
+.resource-icon.energy { background: var(--accent-green); }
+.resource-icon.money { background: #ffd700; color: #000; }
+.resource-icon.fun { background: #ff69b4; }
+
+/* Location-specific styling */
+.location-home .card { border-color: #90EE90; }
+.location-gym .card { border-color: #A9A9A9; }
+.location-school .card { border-color: #DDA0DD; }
+.location-stadium .card { border-color: #32CD32; }
+.location-shop .card { border-color: #FFB6C1; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .location-scene { height: 150px; }
+  .character-sprite { width: 48px; height: 60px; }
+  .row { flex-direction: column; }
+  .btns { justify-content: center; }
+}
+
+/* Sprite component styles for generated images */
+.sprite {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Character sprite specific styles - consolidated above */
+
+.sprite.loading {
+  opacity: 0;
+}
+
+.sprite.loaded {
+  opacity: 1;
+}
+
+.sprite-fallback {
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  text-align: center;
+  box-sizing: border-box;
+  background: #ddd;
+  border: 2px solid #999;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+/* Click indicator animation */
+@keyframes clickPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}

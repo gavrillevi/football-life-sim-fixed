@@ -1,0 +1,219 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Final Sprite Sheet Test</title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: white;
+  }
+  
+  .test-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .test-section {
+    margin: 20px 0;
+    padding: 15px;
+    background: #3a3a3a;
+    border-radius: 8px;
+  }
+  
+  canvas { 
+    image-rendering: pixelated; 
+    background: #1a1a1a;
+    display: block;
+    margin: 10px auto;
+    border: 2px solid #555;
+  }
+  
+  .controls {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .controls button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .controls button:hover {
+    background: #0056b3;
+  }
+  
+  .info {
+    background: #4a4a4a;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-family: monospace;
+    font-size: 12px;
+  }
+  
+  .success { color: #4CAF50; }
+  .error { color: #f44336; }
+  .warning { color: #ff9800; }
+</style>
+
+<div class="test-container">
+  <h1>🎬 Final Sprite Sheet Test</h1>
+  
+  <div class="test-section">
+    <h3>📐 Sprite Sheet Validation</h3>
+    <p>Testing the exact setup that will be used in the game</p>
+    
+    <canvas id="walk-canvas" width="32" height="64" style="width: 128px; height: 256px;"></canvas>
+    <div class="info" id="walk-info">Loading walking sprite sheet...</div>
+    
+    <canvas id="idle-canvas" width="32" height="64" style="width: 128px; height: 256px;"></canvas>
+    <div class="info" id="idle-info">Loading idle sprite...</div>
+  </div>
+  
+  <div class="test-section">
+    <h3>🎮 Animation Controls</h3>
+    <div class="controls">
+      <button onclick="toggleWalk()">Toggle Walk Animation</button>
+      <button onclick="toggleIdle()">Toggle Idle Animation</button>
+      <button onclick="changeWalkSpeed()">Change Walk Speed</button>
+    </div>
+    
+    <div class="info" id="status-info">
+      Walk: Playing (8 FPS) | Idle: Playing (4 FPS)
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h3>🔧 Game Integration Test</h3>
+    <p><strong>Main Game:</strong> <a href="http://localhost:5173" target="_blank" style="color: #4CAF50;">http://localhost:5173</a></p>
+    <p><strong>Expected:</strong> Character should have proper sprite sheet animations</p>
+    
+    <div class="info">
+      <strong>Technical Setup:</strong><br>
+      • SpriteSheet component with canvas rendering<br>
+      • 32×64 frame size, 4 frames per sheet<br>
+      • Pixel-perfect rendering (imageSmoothingEnabled = false)<br>
+      • FPS: 8 for walking, 4 for idle<br>
+      • Direction flipping with transform: scaleX(-1)
+    </div>
+  </div>
+</div>
+
+<script>
+// Walking animation setup
+const walkCanvas = document.getElementById('walk-canvas');
+const walkCtx = walkCanvas.getContext('2d', {alpha: true});
+walkCtx.imageSmoothingEnabled = false;
+
+const walkImg = new Image();
+let walkFrame = 0, walkAcc = 0, walkFPS = 8, walkPlaying = true;
+let walkLastTime = performance.now();
+
+walkImg.onload = () => {
+  const info = document.getElementById('walk-info');
+  if (walkImg.width === 128 && walkImg.height === 64) {
+    info.innerHTML = `<span class="success">✅ Walking sprite sheet: ${walkImg.width}×${walkImg.height} (4 frames of 32×64)</span>`;
+  } else {
+    info.innerHTML = `<span class="error">❌ Expected 128×64, got ${walkImg.width}×${walkImg.height}</span>`;
+  }
+  requestAnimationFrame(walkLoop);
+};
+walkImg.onerror = () => {
+  document.getElementById('walk-info').innerHTML = '<span class="error">❌ Failed to load anime-walk.png</span>';
+};
+walkImg.src = '/assets/sprites/anime-walk.png';
+
+function walkLoop(now) {
+  if (!walkPlaying) {
+    requestAnimationFrame(walkLoop);
+    return;
+  }
+  
+  const dt = (now - walkLastTime) / 1000;
+  walkLastTime = now;
+  walkAcc += dt;
+  
+  const spf = 1 / walkFPS;
+  while (walkAcc >= spf) {
+    walkFrame = (walkFrame + 1) % 4;
+    walkAcc -= spf;
+  }
+  
+  walkCtx.clearRect(0, 0, 32, 64);
+  walkCtx.drawImage(walkImg, walkFrame * 32, 0, 32, 64, 0, 0, 32, 64);
+  
+  requestAnimationFrame(walkLoop);
+}
+
+// Idle animation setup (static for now)
+const idleCanvas = document.getElementById('idle-canvas');
+const idleCtx = idleCanvas.getContext('2d', {alpha: true});
+idleCtx.imageSmoothingEnabled = false;
+
+const idleImg = new Image();
+let idleFrame = 0, idleAcc = 0, idleFPS = 4, idlePlaying = true;
+let idleLastTime = performance.now();
+
+idleImg.onload = () => {
+  const info = document.getElementById('idle-info');
+  info.innerHTML = `<span class="success">✅ Idle sprite: ${idleImg.width}×${idleImg.height} (static for now)</span>`;
+  requestAnimationFrame(idleLoop);
+};
+idleImg.onerror = () => {
+  document.getElementById('idle-info').innerHTML = '<span class="error">❌ Failed to load anime-clean.png</span>';
+};
+idleImg.src = '/assets/sprites/anime-clean.png';
+
+function idleLoop(now) {
+  if (!idlePlaying) {
+    requestAnimationFrame(idleLoop);
+    return;
+  }
+  
+  const dt = (now - idleLastTime) / 1000;
+  idleLastTime = now;
+  idleAcc += dt;
+  
+  const spf = 1 / idleFPS;
+  while (idleAcc >= spf) {
+    idleFrame = (idleFrame + 1) % 4; // Will be 1 frame when we have proper idle sprite sheet
+    idleAcc -= spf;
+  }
+  
+  idleCtx.clearRect(0, 0, 32, 64);
+  idleCtx.drawImage(idleImg, 0, 0, idleImg.width, idleImg.height, 0, 0, 32, 64);
+  
+  requestAnimationFrame(idleLoop);
+}
+
+// Control functions
+function toggleWalk() {
+  walkPlaying = !walkPlaying;
+  if (walkPlaying) walkLastTime = performance.now();
+}
+
+function toggleIdle() {
+  idlePlaying = !idlePlaying;
+  if (idlePlaying) idleLastTime = performance.now();
+}
+
+function changeWalkSpeed() {
+  walkFPS = walkFPS === 4 ? 8 : walkFPS === 8 ? 12 : 4;
+}
+
+// Update status
+setInterval(() => {
+  document.getElementById('status-info').innerHTML = 
+    `Walk: ${walkPlaying ? 'Playing' : 'Paused'} (${walkFPS} FPS) | Idle: ${idlePlaying ? 'Playing' : 'Paused'} (${idleFPS} FPS)`;
+}, 100);
+</script>

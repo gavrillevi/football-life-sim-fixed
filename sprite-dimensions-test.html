@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sprite Dimensions Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            padding: 20px; 
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        canvas { 
+            border: 2px solid #666; 
+            margin: 10px; 
+            image-rendering: pixelated;
+            background: #000;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background: #2d5a2d; }
+        .error { background: #5a2d2d; }
+        .info { background: #2d4a5a; }
+        .warning { background: #5a5a2d; }
+        .sprite-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Sprite Dimensions Analysis</h1>
+        
+        <div class="test-section">
+            <h3>📊 Current Sprite Files</h3>
+            <div class="result info">
+                <strong>anime-clean.png:</strong> 32×64 ✅ (correct for static)<br>
+                <strong>anime-walk.png:</strong> 1536×1024 ❌ (wrong - too large)<br>
+                <strong>Expected for 4-frame animation:</strong> 128×64 (4 frames of 32×64)
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎬 Sprite Analysis</h3>
+            <div class="sprite-grid">
+                <div>
+                    <h4>Static Sprite (32×64):</h4>
+                    <canvas id="static-canvas" width="32" height="64"></canvas>
+                    <div id="static-info" class="result info">Loading...</div>
+                </div>
+                
+                <div>
+                    <h4>Large Sprite (1536×1024):</h4>
+                    <canvas id="large-canvas" width="200" height="133"></canvas>
+                    <div id="large-info" class="result info">Loading...</div>
+                </div>
+                
+                <div>
+                    <h4>Test 4-Frame Animation:</h4>
+                    <canvas id="test-canvas" width="32" height="64"></canvas>
+                    <div id="test-info" class="result info">Creating test animation...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔧 Solutions</h3>
+            <div class="result warning">
+                <strong>Option 1: Resize anime-walk.png</strong><br>
+                - Use image editor to resize to 128×64<br>
+                - Should contain 4 frames of 32×64 each<br>
+                - Arrange frames horizontally
+            </div>
+            
+            <div class="result warning">
+                <strong>Option 2: Use static sprite for now</strong><br>
+                - Update code to use anime-clean.png for all states<br>
+                - Add CSS animations for movement effect<br>
+                - Works immediately without resizing
+            </div>
+            
+            <div class="result warning">
+                <strong>Option 3: Create new sprite sheet</strong><br>
+                - Generate 4-frame walking animation<br>
+                - 128×64 pixels total (32×64 per frame)<br>
+                - Replace anime-walk.png
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎮 Quick Fix for Game</h3>
+            <div class="result info">
+                <strong>To make the game work immediately:</strong><br>
+                1. Use anime-clean.png for all character states<br>
+                2. Add CSS animations for walking effect<br>
+                3. Character will appear and move (without sprite animation)<br>
+                4. Fix sprite sheet later
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Test static sprite
+        const staticCanvas = document.getElementById('static-canvas');
+        const staticCtx = staticCanvas.getContext('2d');
+        staticCtx.imageSmoothingEnabled = false;
+        
+        const staticImg = new Image();
+        staticImg.onload = () => {
+            document.getElementById('static-info').innerHTML = 
+                `✅ ${staticImg.width}×${staticImg.height} - Perfect for static character`;
+            document.getElementById('static-info').className = 'result success';
+            staticCtx.drawImage(staticImg, 0, 0, 32, 64);
+        };
+        staticImg.src = '/assets/sprites/anime-clean.png';
+        
+        // Test large sprite
+        const largeCanvas = document.getElementById('large-canvas');
+        const largeCtx = largeCanvas.getContext('2d');
+        largeCtx.imageSmoothingEnabled = false;
+        
+        const largeImg = new Image();
+        largeImg.onload = () => {
+            document.getElementById('large-info').innerHTML = 
+                `❌ ${largeImg.width}×${largeImg.height} - Too large for sprite sheet`;
+            document.getElementById('large-info').className = 'result error';
+            
+            // Show scaled down version
+            largeCtx.drawImage(largeImg, 0, 0, 200, 133);
+        };
+        largeImg.src = '/assets/sprites/anime-walk.png';
+        
+        // Create test 4-frame animation
+        const testCanvas = document.getElementById('test-canvas');
+        const testCtx = testCanvas.getContext('2d');
+        testCtx.imageSmoothingEnabled = false;
+        
+        // Create a simple test animation using the static sprite
+        let frame = 0;
+        let lastTime = performance.now();
+        
+        function createTestAnimation() {
+            document.getElementById('test-info').innerHTML = 
+                `🎬 Test animation using static sprite + CSS effects`;
+            document.getElementById('test-info').className = 'result info';
+            
+            function animate(now) {
+                const dt = (now - lastTime) / 1000;
+                lastTime = now;
+                
+                // Simple frame counter
+                frame = (frame + 1) % 4;
+                
+                // Clear and draw static sprite with slight variations
+                testCtx.clearRect(0, 0, 32, 64);
+                
+                // Add slight movement effect
+                const offsetY = Math.sin(frame * 0.5) * 2;
+                testCtx.drawImage(staticImg, 0, offsetY, 32, 64);
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate(performance.now());
+        }
+        
+        // Start test animation when static sprite loads
+        staticImg.onload = () => {
+            createTestAnimation();
+        };
+        
+        console.log('🔍 Sprite dimensions test loaded');
+    </script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Life Sim - Kairosoft Style Demo</title>
+    <style>
+        :root { 
+          font-family: 'Courier New', monospace;
+          --bg-color: #2a5d31;
+          --ui-bg: #f4e4bc;
+          --ui-border: #8b4513;
+          --text-color: #2d1810;
+          --accent: #ff6b35;
+        }
+
+        body { 
+          margin: 0; 
+          background: var(--bg-color);
+          color: var(--text-color);
+          min-height: 100vh;
+          padding: 20px;
+          image-rendering: pixelated;
+          image-rendering: -moz-crisp-edges;
+          image-rendering: crisp-edges;
+        }
+
+        .container { 
+          max-width: 1000px; 
+          margin: 0 auto; 
+        }
+
+        .game-window {
+          background: var(--ui-bg);
+          border: 4px solid var(--ui-border);
+          border-radius: 8px;
+          padding: 16px;
+          box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+
+        .game-screen {
+          position: relative;
+          width: 100%;
+          height: 600px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><pattern id="floor" patternUnits="userSpaceOnUse" width="32" height="32"><rect width="32" height="32" fill="%23d4a574"/><rect x="1" y="1" width="30" height="30" fill="%23e6c2a6"/></pattern></defs><rect width="800" height="600" fill="url(%23floor)"/></svg>');
+          border: 2px solid var(--ui-border);
+          overflow: hidden;
+          image-rendering: pixelated;
+        }
+
+        /* Pixel Art Character */
+        .character {
+          position: absolute;
+          width: 32px;
+          height: 32px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="12" y="8" width="8" height="8" fill="%23ffdbac"/><rect x="10" y="6" width="12" height="4" fill="%238b4513"/><rect x="11" y="16" width="10" height="8" fill="%234169e1"/><rect x="14" y="18" width="4" height="2" fill="%23ffffff"/><text x="16" y="21" text-anchor="middle" fill="%23ffffff" font-size="6">10</text><rect x="13" y="24" width="3" height="8" fill="%23ffdbac"/><rect x="16" y="24" width="3" height="8" fill="%23ffdbac"/><rect x="8" y="12" width="3" height="6" fill="%23ffdbac"/><rect x="21" y="12" width="3" height="6" fill="%23ffdbac"/><rect x="13" y="10" width="2" height="2" fill="%23000"/><rect x="17" y="10" width="2" height="2" fill="%23000"/></svg>');
+          z-index: 10;
+          transition: all 0.5s ease;
+          animation: idle 2s ease-in-out infinite alternate;
+        }
+
+        .character.walking {
+          animation: walk 0.6s ease-in-out infinite;
+        }
+
+        @keyframes idle {
+          0% { transform: translateY(0px); }
+          100% { transform: translateY(-2px); }
+        }
+
+        @keyframes walk {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
+        }
+
+        /* Pixel Art Objects */
+        .object {
+          position: absolute;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          image-rendering: pixelated;
+        }
+
+        .object:hover {
+          transform: scale(1.1);
+          filter: brightness(1.2);
+        }
+
+        .bed {
+          width: 64px;
+          height: 48px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48"><rect width="64" height="48" fill="%238b4513"/><rect x="4" y="4" width="56" height="40" fill="%23a0522d"/><rect x="8" y="8" width="48" height="8" fill="%23ffffff"/><rect x="8" y="16" width="48" height="24" fill="%23ff69b4"/><circle cx="20" cy="12" r="6" fill="%23f0f8ff"/><circle cx="44" cy="12" r="6" fill="%23f0f8ff"/></svg>');
+        }
+
+        .tv {
+          width: 80px;
+          height: 64px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 64"><rect x="40" y="8" width="32" height="24" fill="%23333"/><rect x="42" y="10" width="28" height="20" fill="%23000"/><rect x="44" y="12" width="24" height="16" fill="%2300ff00" opacity="0.3"/><rect x="8" y="32" width="40" height="24" fill="%238b4513"/><rect x="12" y="36" width="12" height="16" fill="%23daa520"/><rect x="24" y="36" width="12" height="16" fill="%23daa520"/></svg>');
+        }
+
+        .kitchen {
+          width: 96px;
+          height: 64px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 64"><rect width="96" height="64" fill="%23f5f5dc"/><rect x="8" y="8" width="24" height="48" fill="%23c0c0c0"/><rect x="10" y="12" width="20" height="6" fill="%2387ceeb"/><rect x="28" y="8" width="2" height="12" fill="%23333"/><rect x="40" y="40" width="48" height="16" fill="%23ffffff"/><circle cx="72" cy="48" r="8" fill="%23c0c0c0"/></svg>');
+        }
+
+        .football-pitch {
+          width: 128px;
+          height: 96px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 96"><rect width="128" height="96" fill="%2332cd32"/><rect x="4" y="4" width="120" height="88" stroke="%23ffffff" stroke-width="2" fill="none"/><circle cx="64" cy="48" r="20" stroke="%23ffffff" stroke-width="2" fill="none"/><circle cx="64" cy="48" r="2" fill="%23ffffff"/><rect x="4" y="32" width="16" height="32" stroke="%23ffffff" stroke-width="2" fill="none"/><rect x="108" y="32" width="16" height="32" stroke="%23ffffff" stroke-width="2" fill="none"/></svg>');
+        }
+
+        .street {
+          width: 160px;
+          height: 48px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48"><rect width="160" height="48" fill="%23696969"/><rect x="0" y="22" width="160" height="4" fill="%23ffff00"/><rect x="20" y="20" width="16" height="8" fill="%23ffffff"/><rect x="60" y="20" width="16" height="8" fill="%23ffffff"/><rect x="100" y="20" width="16" height="8" fill="%23ffffff"/><rect x="140" y="20" width="16" height="8" fill="%23ffffff"/></svg>');
+        }
+
+        .exercise-mat {
+          width: 64px;
+          height: 48px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48"><rect width="64" height="48" fill="%23deb887"/><rect x="8" y="8" width="48" height="32" fill="%234169e1"/><rect x="12" y="12" width="40" height="24" stroke="%23ffffff" stroke-width="1" stroke-dasharray="4,4" fill="none"/><rect x="52" y="4" width="8" height="4" fill="%23333"/><rect x="52" y="40" width="8" height="4" fill="%23333"/></svg>');
+        }
+
+        .juggling-area {
+          width: 48px;
+          height: 48px;
+          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="%23ffe4b5" stroke="%23cd853f" stroke-width="2" stroke-dasharray="4,4"/><circle cx="24" cy="24" r="6" fill="%23ff4500"/><circle cx="24" cy="24" r="4" fill="%23dc143c"/><path d="M20 20 L28 28 M28 20 L20 28" stroke="%23ffffff" stroke-width="1"/></svg>');
+        }
+
+        /* UI Elements */
+        .ui-panel {
+          background: var(--ui-bg);
+          border: 2px solid var(--ui-border);
+          border-radius: 4px;
+          padding: 12px;
+          margin: 8px 0;
+          box-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+        }
+
+        .pixel-button {
+          background: var(--accent);
+          border: 2px solid #d4531f;
+          color: white;
+          padding: 8px 16px;
+          margin: 4px;
+          cursor: pointer;
+          font-family: 'Courier New', monospace;
+          font-weight: bold;
+          font-size: 12px;
+          transition: all 0.1s ease;
+        }
+
+        .pixel-button:hover {
+          background: #ff8c5a;
+          transform: translateY(-1px);
+        }
+
+        .pixel-button:active {
+          transform: translateY(1px);
+          box-shadow: none;
+        }
+
+        .status-bar {
+          display: flex;
+          gap: 16px;
+          align-items: center;
+          font-family: 'Courier New', monospace;
+          font-size: 14px;
+          font-weight: bold;
+        }
+
+        .tooltip {
+          position: absolute;
+          background: var(--ui-bg);
+          border: 2px solid var(--ui-border);
+          padding: 4px 8px;
+          font-size: 10px;
+          font-family: 'Courier New', monospace;
+          white-space: nowrap;
+          z-index: 20;
+          pointer-events: none;
+        }
+
+        .action-menu {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: var(--ui-bg);
+          border: 3px solid var(--ui-border);
+          border-radius: 8px;
+          padding: 16px;
+          box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+          z-index: 30;
+        }
+
+        h1, h2, h3 {
+          font-family: 'Courier New', monospace;
+          color: var(--text-color);
+          text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+        }
+
+        .asset-preview {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin: 16px 0;
+        }
+
+        .asset-item {
+          background: var(--ui-bg);
+          border: 2px solid var(--ui-border);
+          padding: 12px;
+          text-align: center;
+          border-radius: 4px;
+        }
+
+        .asset-item img {
+          image-rendering: pixelated;
+          border: 1px solid var(--ui-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-window">
+            <h1>⚽ Football Life Sim - Kairosoft Style</h1>
+            <p style="margin-bottom: 16px;">This demo shows how the game would look with proper pixel art assets like Kairosoft games!</p>
+            
+            <div class="status-bar ui-panel">
+                <span>🕐 08:30</span>
+                <span>🏠 HOME</span>
+                <span>💰 $200</span>
+                <span>🍽️ Hunger: 75%</span>
+                <span>⚡ Energy: 80%</span>
+                <span id="status">Status: <span style="color: #228b22;">Ready</span></span>
+            </div>
+
+            <div class="game-screen">
+                <!-- Character -->
+                <div id="character" class="character" style="bottom: 200px; left: 400px;"></div>
+
+                <!-- Interactive Objects -->
+                <div class="object bed" style="top: 50px; right: 80px;" onclick="moveToObject(this, 'bed')" title="Luxury Bed - Sleep to recover">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">🛏️ Luxury Bed</div>
+                </div>
+
+                <div class="object tv" style="top: 200px; left: 60px;" onclick="moveToObject(this, 'tv')" title="Entertainment Center - Watch game footage">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">📺 Entertainment Center</div>
+                </div>
+
+                <div class="object kitchen" style="top: 50px; left: 200px;" onclick="moveToObject(this, 'kitchen')" title="Modern Kitchen - Eat and drink">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">🍽️ Modern Kitchen</div>
+                </div>
+
+                <div class="object football-pitch" style="bottom: 50px; left: 50px;" onclick="moveToObject(this, 'pitch')" title="Football Pitch - Play with friends">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">⚽ Football Pitch</div>
+                </div>
+
+                <div class="object street" style="bottom: 20px; right: 100px;" onclick="moveToObject(this, 'street')" title="Street - Go jogging">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">🏃 Street</div>
+                </div>
+
+                <div class="object exercise-mat" style="top: 300px; left: 120px;" onclick="moveToObject(this, 'exercise')" title="Exercise Area - Strength training">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">💪 Exercise Area</div>
+                </div>
+
+                <div class="object juggling-area" style="top: 280px; right: 200px;" onclick="moveToObject(this, 'juggling')" title="Juggling Zone - Practice skills">
+                    <div class="tooltip" style="display: none; top: -25px; left: 50%; transform: translateX(-50%);">⚽ Juggling Zone</div>
+                </div>
+            </div>
+
+            <div class="ui-panel">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                    <button class="pixel-button" onclick="moveToRandomObject()">🎲 Random Move</button>
+                    <button class="pixel-button" onclick="tourHouse()">🏠 House Tour</button>
+                    <button class="pixel-button" onclick="resetCharacter()">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Menu (hidden by default) -->
+        <div id="action-menu" class="action-menu" style="display: none;">
+            <h4 id="object-name" style="margin: 0 0 12px 0; text-align: center;"></h4>
+            <div id="action-buttons" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;"></div>
+            <button class="pixel-button" onclick="hideActions()" style="position: absolute; top: 8px; right: 8px; padding: 4px 8px;">✕</button>
+        </div>
+
+        <div class="game-window" style="margin-top: 20px;">
+            <h2>🎨 Asset Generation Strategy</h2>
+            
+            <div class="asset-preview">
+                <div class="asset-item">
+                    <h4>Character Sprites</h4>
+                    <div style="width: 64px; height: 64px; margin: 0 auto; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><rect x=\"24\" y=\"16\" width=\"16\" height=\"16\" fill=\"%23ffdbac\"/><rect x=\"20\" y=\"12\" width=\"24\" height=\"8\" fill=\"%238b4513\"/><rect x=\"22\" y=\"32\" width=\"20\" height=\"16\" fill=\"%234169e1\"/><rect x=\"28\" y=\"36\" width=\"8\" height=\"4\" fill=\"%23ffffff\"/><text x=\"32\" y=\"42\" text-anchor=\"middle\" fill=\"%23ffffff\" font-size=\"8\">10</text><rect x=\"26\" y=\"48\" width=\"6\" height=\"16\" fill=\"%23ffdbac\"/><rect x=\"32\" y=\"48\" width=\"6\" height=\"16\" fill=\"%23ffdbac\"/><rect x=\"16\" y=\"24\" width=\"6\" height=\"12\" fill=\"%23ffdbac\"/><rect x=\"42\" y=\"24\" width=\"6\" height=\"12\" fill=\"%23ffdbac\"/></svg>'); background-size: contain;"></div>
+                    <p>32x32 or 64x64 pixel sprites with idle, walk, and action animations</p>
+                </div>
+
+                <div class="asset-item">
+                    <h4>Object Sprites</h4>
+                    <div style="display: flex; gap: 8px; justify-content: center; margin: 8px 0;">
+                        <div style="width: 32px; height: 24px; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 24\"><rect width=\"32\" height=\"24\" fill=\"%238b4513\"/><rect x=\"2\" y=\"2\" width=\"28\" height=\"20\" fill=\"%23a0522d\"/><rect x=\"4\" y=\"4\" width=\"24\" height=\"4\" fill=\"%23ffffff\"/><rect x=\"4\" y=\"8\" width=\"24\" height=\"12\" fill=\"%23ff69b4\"/></svg>'); background-size: contain;"></div>
+                        <div style="width: 32px; height: 24px; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 24\"><rect x=\"16\" y=\"4\" width=\"12\" height=\"8\" fill=\"%23333\"/><rect x=\"17\" y=\"5\" width=\"10\" height=\"6\" fill=\"%23000\"/><rect x=\"4\" y=\"12\" width=\"16\" height=\"8\" fill=\"%238b4513\"/></svg>'); background-size: contain;"></div>
+                        <div style="width: 32px; height=\"24px; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 24\"><rect width=\"32\" height=\"24\" fill=\"%23f5f5dc\"/><rect x=\"2\" y=\"2\" width=\"8\" height=\"20\" fill=\"%23c0c0c0\"/><rect x=\"12\" y=\"16\" width=\"18\" height=\"6\" fill=\"%23ffffff\"/></svg>'); background-size: contain;"></div>
+                    </div>
+                    <p>Detailed furniture and environment objects</p>
+                </div>
+
+                <div class="asset-item">
+                    <h4>Background Tiles</h4>
+                    <div style="width: 64px; height: 64px; margin: 0 auto; background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\"><defs><pattern id=\"tile\" patternUnits=\"userSpaceOnUse\" width=\"16\" height=\"16\"><rect width=\"16\" height=\"16\" fill=\"%23d4a574\"/><rect x=\"1\" y=\"1\" width=\"14\" height=\"14\" fill=\"%23e6c2a6\"/></pattern></defs><rect width=\"64\" height=\"64\" fill=\"url(%23tile)\"/></svg>'); background-size: contain;"></div>
+                    <p>Tileable floor and wall textures for seamless backgrounds</p>
+                </div>
+
+                <div class="asset-item">
+                    <h4>UI Elements</h4>
+                    <div style="display: flex; gap: 4px; justify-content: center; margin: 8px 0;">
+                        <div class="pixel-button" style="font-size: 10px;">Button</div>
+                        <div style="width: 40px; height: 16px; background: var(--ui-bg); border: 1px solid var(--ui-border); display: flex; align-items: center; justify-content: center; font-size: 8px;">Panel</div>
+                    </div>
+                    <p>Consistent UI styling with pixel-perfect borders and buttons</p>
+                </div>
+            </div>
+
+            <h3>🚀 Implementation Steps</h3>
+            <ol style="line-height: 1.6;">
+                <li><strong>Generate Assets:</strong> Use AI tools (DALL-E 3, Midjourney) with the prompts in <code>asset-generation-guide.md</code></li>
+                <li><strong>Prepare Files:</strong> Save as PNG with transparency, optimize sizes, create sprite sheets</li>
+                <li><strong>Asset System:</strong> Create loading system and sprite components in React</li>
+                <li><strong>Replace Graphics:</strong> Swap CSS shapes with real image sprites</li>
+                <li><strong>Add Animations:</strong> Implement frame-based sprite animations</li>
+                <li><strong>Polish:</strong> Add effects, particles, and visual feedback</li>
+            </ol>
+
+            <div class="ui-panel" style="background: #e8f4f8; border-color: #4a90a4;">
+                <h4 style="margin-top: 0; color: #2c5f6f;">💡 Pro Tip: AI Generation</h4>
+                <p style="margin-bottom: 0;">For best results, generate a complete sprite sheet with multiple poses and animations in one image. This ensures consistent style and proportions across all frames.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let characterPosition = { x: 400, y: 200 };
+        let isWalking = false;
+
+        const objects = {
+            'bed': { name: '🛏️ Luxury Bed', element: null, actions: [{ id: 'sleep', label: 'Sleep', icon: '😴' }] },
+            'tv': { name: '📺 Entertainment Center', element: null, actions: [{ id: 'watch', label: 'Watch Footage', icon: '📺' }] },
+            'kitchen': { name: '🍽️ Modern Kitchen', element: null, actions: [{ id: 'eat', label: 'Eat Meal', icon: '🍽️' }, { id: 'drink', label: 'Have Drink', icon: '🥤' }] },
+            'pitch': { name: '⚽ Football Pitch', element: null, actions: [{ id: 'play', label: 'Play with Friends', icon: '⚽' }] },
+            'street': { name: '🏃 Street', element: null, actions: [{ id: 'jog', label: 'Go Jogging', icon: '🏃' }] },
+            'exercise': { name: '💪 Exercise Area', element: null, actions: [{ id: 'pushups', label: 'Strength Training', icon: '💪' }] },
+            'juggling': { name: '⚽ Juggling Zone', element: null, actions: [{ id: 'juggle', label: 'Practice Skills', icon: '⚽' }] }
+        };
+
+        function updateStatus(status, color = '#228b22') {
+            const statusEl = document.querySelector('#status span');
+            statusEl.textContent = status;
+            statusEl.style.color = color;
+        }
+
+        function moveCharacterTo(targetX, targetY, callback) {
+            if (isWalking) return;
+            
+            isWalking = true;
+            updateStatus('Walking...', '#4169e1');
+            
+            const character = document.getElementById('character');
+            character.classList.add('walking');
+            
+            const distance = Math.sqrt(Math.pow(targetX - characterPosition.x, 2) + Math.pow(targetY - characterPosition.y, 2));
+            const duration = Math.max(800, distance * 2);
+            
+            const startTime = Date.now();
+            const startX = characterPosition.x;
+            const startY = characterPosition.y;
+            
+            const animate = () => {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                const currentX = startX + (targetX - startX) * easeProgress;
+                const currentY = startY + (targetY - startY) * easeProgress;
+                
+                characterPosition = { x: currentX, y: currentY };
+                
+                character.style.left = currentX + 'px';
+                character.style.bottom = (600 - currentY - 32) + 'px';
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isWalking = false;
+                    character.classList.remove('walking');
+                    updateStatus('Ready');
+                    if (callback) callback();
+                }
+            };
+            
+            requestAnimationFrame(animate);
+        }
+
+        function moveToObject(element, objectId) {
+            if (isWalking) return;
+            
+            const rect = element.getBoundingClientRect();
+            const gameRect = document.querySelector('.game-screen').getBoundingClientRect();
+            
+            const targetX = rect.left - gameRect.left + rect.width / 2 - 16;
+            const targetY = gameRect.bottom - rect.bottom + rect.height / 2 - 16;
+            
+            moveCharacterTo(targetX, targetY, () => {
+                showActions(objectId);
+            });
+        }
+
+        function showActions(objectId) {
+            const obj = objects[objectId];
+            if (!obj) return;
+
+            const menu = document.getElementById('action-menu');
+            const nameEl = document.getElementById('object-name');
+            const buttonsEl = document.getElementById('action-buttons');
+
+            nameEl.textContent = obj.name;
+            buttonsEl.innerHTML = '';
+
+            obj.actions.forEach(action => {
+                const button = document.createElement('button');
+                button.className = 'pixel-button';
+                button.innerHTML = `${action.icon} ${action.label}`;
+                button.onclick = () => performAction(action.id, objectId);
+                buttonsEl.appendChild(button);
+            });
+
+            menu.style.display = 'block';
+        }
+
+        function hideActions() {
+            document.getElementById('action-menu').style.display = 'none';
+        }
+
+        function performAction(actionId, objectId) {
+            updateStatus(`Performing ${actionId}...`, '#ff6b35');
+            
+            setTimeout(() => {
+                updateStatus('Ready');
+                alert(`✨ Action completed: ${actionId} at ${objects[objectId].name}!`);
+            }, 2000);
+            
+            hideActions();
+        }
+
+        function moveToRandomObject() {
+            if (isWalking) return;
+            const objectIds = Object.keys(objects);
+            const randomId = objectIds[Math.floor(Math.random() * objectIds.length)];
+            const element = document.querySelector(`.${randomId === 'pitch' ? 'football-pitch' : randomId === 'exercise' ? 'exercise-mat' : randomId === 'juggling' ? 'juggling-area' : randomId}`);
+            if (element) moveToObject(element, randomId);
+        }
+
+        function tourHouse() {
+            if (isWalking) return;
+            const tour = ['kitchen', 'tv', 'exercise', 'juggling', 'bed', 'pitch', 'street'];
+            let currentStop = 0;
+            
+            function nextStop() {
+                if (currentStop < tour.length) {
+                    const objectId = tour[currentStop];
+                    const className = objectId === 'pitch' ? 'football-pitch' : 
+                                    objectId === 'exercise' ? 'exercise-mat' : 
+                                    objectId === 'juggling' ? 'juggling-area' : objectId;
+                    const element = document.querySelector(`.${className}`);
+                    if (element) {
+                        moveToObject(element, objectId);
+                        currentStop++;
+                        setTimeout(nextStop, 1500);
+                    }
+                }
+            }
+            
+            nextStop();
+        }
+
+        function resetCharacter() {
+            if (isWalking) return;
+            moveCharacterTo(400, 200);
+        }
+
+        // Show tooltips on hover
+        document.querySelectorAll('.object').forEach(obj => {
+            obj.addEventListener('mouseenter', function() {
+                const tooltip = this.querySelector('.tooltip');
+                if (tooltip) {
+                    tooltip.style.display = 'block';
+                }
+            });
+            
+            obj.addEventListener('mouseleave', function() {
+                const tooltip = this.querySelector('.tooltip');
+                if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('action-menu');
+            const isClickInside = menu.contains(e.target) || e.target.classList.contains('object');
+            
+            if (!isClickInside && menu.style.display === 'block') {
+                hideActions();
+            }
+        });
+
+        // Initialize
+        updateStatus('Ready');
+    </script>
+</body>
+</html>

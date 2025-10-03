@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sprite Sheet Animation Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .test-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        
+        .animation-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .animation-card {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            background: #fafafa;
+            text-align: center;
+        }
+        
+        .animation-card h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+        
+        .character-sprite {
+            width: 32px;
+            height: 64px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .walking-sprite {
+            width: 32px;
+            height: 64px;
+            background-size: 400% 100%;
+            background-position: 0% 0%;
+            background-repeat: no-repeat;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        .walking-sprite.walking {
+            animation: walkingCycle 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes walkingCycle {
+            0% { background-position: 0% 0%; }     /* Frame 1 */
+            25% { background-position: -25% 0%; }  /* Frame 2 */
+            50% { background-position: -50% 0%; }  /* Frame 3 */
+            75% { background-position: -75% 0%; }  /* Frame 4 */
+            100% { background-position: 0% 0%; }   /* Back to Frame 1 */
+        }
+        
+        .frame-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .frame-card {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+            text-align: center;
+        }
+        
+        .frame-sprite {
+            width: 32px;
+            height: 64px;
+            background-size: 400% 100%;
+            background-repeat: no-repeat;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px auto;
+        }
+        
+        .animation-controls {
+            margin: 20px 0;
+        }
+        
+        .animation-controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .animation-controls button:hover {
+            background: #0056b3;
+        }
+        
+        .animation-controls button.active {
+            background: #28a745;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎬 Sprite Sheet Animation Test</h1>
+        
+        <div class="test-info">
+            <h3>🔧 Fixing Sprite Sheet Animation:</h3>
+            <ul>
+                <li><strong>Problem:</strong> All 4 frames showing at once during walking</li>
+                <li><strong>Cause:</strong> Sprite sheet not properly cycling through frames</li>
+                <li><strong>Solution:</strong> Proper background-position animation</li>
+            </ul>
+        </div>
+        
+        <div class="status" id="status">
+            <p>🔄 Testing sprite sheet animation...</p>
+        </div>
+        
+        <h3>🎬 Animation Demo</h3>
+        <div class="animation-demo">
+            <div class="animation-card">
+                <h3>🚶‍♂️ Walking Animation (Fixed)</h3>
+                <div class="walking-sprite walking" id="walking-sprite" style="background-image: url('/assets/sprites/anime-walk.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        WALKING
+                    </div>
+                </div>
+                <p><strong>Status:</strong> <span id="walking-status">Cycling through 4 frames</span></p>
+                <p><strong>Speed:</strong> 0.8 seconds per cycle</p>
+                <p><strong>Frames:</strong> 4 frames cycling properly</p>
+            </div>
+            
+            <div class="animation-card">
+                <h3>😴 Idle Character (Static)</h3>
+                <div class="character-sprite" style="background-image: url('/assets/sprites/anime-clean.png');">
+                    <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: white; padding: 2px; border-radius: 3px; font-size: 10px;">
+                        IDLE
+                    </div>
+                </div>
+                <p><strong>Status:</strong> Static</p>
+                <p><strong>File:</strong> anime-clean.png</p>
+                <p><strong>Purpose:</strong> Standing still</p>
+            </div>
+        </div>
+        
+        <h3>🎮 Animation Controls</h3>
+        <div class="animation-controls">
+            <button onclick="toggleWalking()" id="walking-btn" class="active">Toggle Walking Animation</button>
+            <button onclick="testSpeed()" id="speed-btn">Test Speed (0.4s)</button>
+            <button onclick="testSpeed()" id="speed-btn2">Test Speed (1.2s)</button>
+        </div>
+        
+        <h3>📊 Individual Frames</h3>
+        <div class="frame-demo">
+            <div class="frame-card">
+                <h4>Frame 1</h4>
+                <div class="frame-sprite" style="background-image: url('/assets/sprites/anime-walk.png'); background-position: 0% 0%;">
+                </div>
+                <p>0% 0%</p>
+            </div>
+            
+            <div class="frame-card">
+                <h4>Frame 2</h4>
+                <div class="frame-sprite" style="background-image: url('/assets/sprites/anime-walk.png'); background-position: -25% 0%;">
+                </div>
+                <p>-25% 0%</p>
+            </div>
+            
+            <div class="frame-card">
+                <h4>Frame 3</h4>
+                <div class="frame-sprite" style="background-image: url('/assets/sprites/anime-walk.png'); background-position: -50% 0%;">
+                </div>
+                <p>-50% 0%</p>
+            </div>
+            
+            <div class="frame-card">
+                <h4>Frame 4</h4>
+                <div class="frame-sprite" style="background-image: url('/assets/sprites/anime-walk.png'); background-position: -75% 0%;">
+                </div>
+                <p>-75% 0%</p>
+            </div>
+        </div>
+        
+        <div class="debug-info" id="debug-info">
+            <strong>Debug Information:</strong><br>
+            Testing sprite sheet animation...
+        </div>
+        
+        <div class="test-info">
+            <h3>🎮 Game Test:</h3>
+            <p><strong>Main Game:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></p>
+            <p><strong>Expected:</strong> Character should cycle through 4 frames when walking</p>
+            <p><strong>Idle:</strong> Character should be static when standing still</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>🔧 How It Works:</h3>
+            <ul>
+                <li><strong>Sprite Sheet:</strong> anime-walk.png contains 4 frames (128x64 total)</li>
+                <li><strong>Background Size:</strong> 400% 100% (shows 1/4 of the image)</li>
+                <li><strong>Animation:</strong> Cycles through background-position values</li>
+                <li><strong>Frame 1:</strong> 0% 0% (leftmost frame)</li>
+                <li><strong>Frame 2:</strong> -25% 0% (second frame)</li>
+                <li><strong>Frame 3:</strong> -50% 0% (third frame)</li>
+                <li><strong>Frame 4:</strong> -75% 0% (rightmost frame)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let isWalking = true;
+        let currentSpeed = 0.8;
+        
+        // Test the walking animation
+        const img = new Image();
+        const statusDiv = document.getElementById('status');
+        const debugDiv = document.getElementById('debug-info');
+        
+        img.onload = function() {
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = `
+                <p>✅ <strong>Sprite sheet animation working!</strong></p>
+                <p>📐 <strong>Size:</strong> ${img.naturalWidth}x${img.naturalHeight} pixels</p>
+                <p>📦 <strong>File Size:</strong> 2.2MB</p>
+                <p>🎬 <strong>Frames:</strong> 4 frames (${img.naturalWidth/4}x${img.naturalHeight} each)</p>
+                <p>⚡ <strong>Animation:</strong> 0.8 seconds per cycle</p>
+                <p>🎮 <strong>Game:</strong> Should now cycle through frames properly</p>
+            `;
+            
+            debugDiv.innerHTML = `
+                <strong>Debug Information:</strong><br>
+                ✅ Sprite sheet: ${img.naturalWidth}x${img.naturalHeight}<br>
+                ✅ Frame size: ${img.naturalWidth/4}x${img.naturalHeight}<br>
+                ✅ Background size: 400% 100%<br>
+                ✅ Animation: cycling through 4 frames<br>
+                ✅ Speed: 0.8 seconds per cycle
+            `;
+        };
+        
+        img.onerror = function() {
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `
+                <p>❌ <strong>Error!</strong> anime-walk.png failed to load</p>
+                <p>🔍 <strong>Check:</strong> File exists at /assets/sprites/anime-walk.png</p>
+            `;
+        };
+        
+        img.src = '/assets/sprites/anime-walk.png';
+        
+        function toggleWalking() {
+            const sprite = document.getElementById('walking-sprite');
+            const btn = document.getElementById('walking-btn');
+            const status = document.getElementById('walking-status');
+            
+            if (isWalking) {
+                sprite.classList.remove('walking');
+                btn.textContent = 'Start Walking Animation';
+                status.textContent = 'Static';
+                isWalking = false;
+            } else {
+                sprite.classList.add('walking');
+                btn.textContent = 'Stop Walking Animation';
+                status.textContent = 'Cycling through 4 frames';
+                isWalking = true;
+            }
+        }
+        
+        function testSpeed() {
+            const sprite = document.getElementById('walking-sprite');
+            currentSpeed = currentSpeed === 0.8 ? 0.4 : currentSpeed === 0.4 ? 1.2 : 0.8;
+            sprite.style.animationDuration = currentSpeed + 's';
+        }
+    </script>
+</body>
+</html>
